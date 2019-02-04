@@ -7,47 +7,28 @@ class AfterSplash extends StatefulWidget {
   _AfterSplash createState() => new _AfterSplash();
 }
 
-
 class _AfterSplash extends State<AfterSplash> {
-  String Username,Password;
- final FirebaseAuth _auth = FirebaseAuth.instance;
- static FirebaseUser user;
- 
- @override 
- //void initState(){
-   
+  String Username, Password;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  static FirebaseUser user;
 
- //}
- void signIn() async 
- {
-   
-   try{
-     user= await _auth.signInWithEmailAndPassword(
-       email: Username,password: Password
-     );
-   }
-   catch(e){
-     print(e.toString());
-
-   }
-   finally{
-     if(user!=null)
-     {
-       User.username=Username;
-       User.user=user;
-      print('Succesfull');
-      Navigator.pushReplacementNamed(context, "/afterlogin");
-
-     }
-     else
-     {
-       print('Unsuccessfull');
-       
-     }
-   
-   }
-
- }
+  void signIn() async {
+    try {
+      user = await _auth.signInWithEmailAndPassword(
+          email: Username, password: Password);
+    } catch (e) {
+      print(e.toString());
+    } finally {
+      if (user != null) {
+        User.username = Username;
+        User.user = user;
+        print('Succesfull');
+        Navigator.pushReplacementNamed(context, "/afterlogin");
+      } else {
+        print('Unsuccessfull');
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -76,18 +57,13 @@ class _AfterSplash extends State<AfterSplash> {
                   child: TextField(
                     keyboardType: TextInputType.emailAddress,
                     decoration: InputDecoration(
-                    
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      
                       labelText: 'Email Address',
-                    
                     ),
-                     onChanged: (String val)
-                    {
-                      if(val!=null)
-                      Username=val;
+                    onChanged: (String val) {
+                      if (val != null) Username = val;
                     },
                   ),
                 ),
@@ -96,40 +72,32 @@ class _AfterSplash extends State<AfterSplash> {
                   child: TextField(
                     obscureText: true,
                     decoration: InputDecoration(
-                      
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      
                       labelText: 'Password',
                     ),
-                    onChanged: (String val)
-                    {
-                      if(val!=null)
-                      Password=val;
+                    onChanged: (String val) {
+                      if (val != null) Password = val;
                     },
-                
                   ),
                 ),
                 Container(
-                  margin: EdgeInsets.fromLTRB(0, 15, 30, 0),
-                  alignment: Alignment.bottomRight,
-                  child: FlatButton(
-                    child: Text('Login'),
-                    onPressed: (){
-                     signIn();
-                    
-                    },
-                  )
-                ),
+                    margin: EdgeInsets.fromLTRB(0, 15, 30, 0),
+                    alignment: Alignment.bottomRight,
+                    child: FlatButton(
+                      child: Text('Login'),
+                      onPressed: () {
+                        signIn();
+                      },
+                    )),
                 Container(
-                  margin: EdgeInsets.fromLTRB(0, 0, 0, 0),
-                  alignment: Alignment.bottomCenter,
-                  child: FlatButton(
-                    child: Text('Forgot Password'),
-                    onPressed: (){},
-                  )
-                )
+                    margin: EdgeInsets.fromLTRB(0, 0, 0, 0),
+                    alignment: Alignment.bottomCenter,
+                    child: FlatButton(
+                      child: Text('Forgot Password'),
+                      onPressed: () {},
+                    ))
               ],
             ))
           ],

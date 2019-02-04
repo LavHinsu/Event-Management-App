@@ -2,16 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:splashscreen/splashscreen.dart';
 import 'login.dart';
 import 'afterlogin.dart';
-void main(){
+
+void main() {
   runApp(new MaterialApp(
+    debugShowCheckedModeBanner: false,
     home: new MyApp(),
-    routes: {
-      '/afterlogin':(context)=>AfterLogin()
-      
-    },
+    routes: {'/afterlogin': (context) => AfterLogin()},
   ));
 }
-
 
 class MyApp extends StatefulWidget {
   @override
@@ -24,20 +22,17 @@ class _MyAppState extends State<MyApp> {
     return new SplashScreen(
       seconds: 3,
       navigateAfterSeconds: new AfterSplash(),
-      title: new Text('Welcome In SplashScreen',
-        style: new TextStyle(
-          fontWeight: FontWeight.bold,
-          fontSize: 20.0
-        ),
+      title: new Text(
+        'Welcome In SplashScreen',
+        style: new TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0),
       ),
-      image: new Image.network('https://flutter.io/images/catalog-widget-placeholder.png'),
-   
+      image: new Image.network(
+          'https://flutter.io/images/catalog-widget-placeholder.png'),
       backgroundColor: Colors.white,
       styleTextUnderTheLoader: new TextStyle(),
       photoSize: 100.0,
-      onClick: ()=>null,
+      onClick: () => null,
       loaderColor: Colors.red,
     );
   }
 }
-
