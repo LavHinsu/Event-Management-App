@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'afterlogin.dart';
 import 'user.dart' as User;
 
 class AfterSplash extends StatefulWidget {
@@ -8,9 +10,43 @@ class AfterSplash extends StatefulWidget {
 }
 
 class _AfterSplash extends State<AfterSplash> {
+  SharedPreferences prefs;
+  String uid;
+  String usern;
+  //var prefs=null;
+
   String Username, Password;
+
   final FirebaseAuth _auth = FirebaseAuth.instance;
   static FirebaseUser user;
+  void initState() {
+     /*prefs= await SharedPreferences.getInstance();
+      if(prefs.getBool("isloggedin",false))
+     {
+      Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => (AfterLogin())));
+     }
+     else{}
+     
+    */
+    //refs=  await SharedPreferences.getInstance();
+    SharedPreferences.getInstance()..then((prefs){
+        setState(() {
+          this.prefs=prefs;
+           uid=prefs.getString("user");
+           usern=prefs.getString('username');
+           
+        });
+    });
+   
+    
+
+  }
+  
+  
+
+  // new Future.delayed(const Duration(seconds: 2));
+ 
 
   void signIn() async {
     try {
@@ -23,6 +59,8 @@ class _AfterSplash extends State<AfterSplash> {
         User.username = Username;
         User.user = user;
         print('Succesfull');
+        prefs.setString("user", User.user.uid);
+        prefs.setString('username',User.username);
         Navigator.pushReplacementNamed(context, "/afterlogin");
       } else {
         print('Unsuccessfull');
