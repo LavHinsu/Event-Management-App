@@ -14,10 +14,10 @@ class _AfterSplash extends State<AfterSplash> {
  static FirebaseUser user;
  
  @override 
- void initState(){
+ //void initState(){
    
 
- }
+ //}
  void signIn() async 
  {
    

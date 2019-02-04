@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'user.dart' as user;
+//import 'user.dart' as user;
 
 class AfterLogin  extends StatefulWidget {
   @override
@@ -15,7 +15,33 @@ class _AfterLogin extends State<AfterLogin> {
         title: Text('AfterLogin'),
       ),
       body: Center(
-        child: Text(user.user.uid),
+        child: Container(
+          
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              GestureDetector(
+                onTap: (){},
+                child: Card(
+                  child: Center(
+                    child: Text('Event_1'),
+                  ),
+                ),
+              ),
+              GestureDetector(
+                onTap: (){},
+                child: Card(
+                  child: Center(
+                    child: Text('Event_2'),
+                  ),
+                
+                  
+                ),
+              )
+            ],
+          ),
+        ),
+        
       ),
     );
   }
