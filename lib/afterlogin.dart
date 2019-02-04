@@ -17,28 +17,39 @@ class _AfterLogin extends State<AfterLogin> {
       body: Center(
         child: Container(
           
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              GestureDetector(
-                onTap: (){},
-                child: Card(
-                  child: Center(
-                    child: Text('Event_1'),
-                  ),
-                ),
-              ),
-              GestureDetector(
-                onTap: (){},
-                child: Card(
-                  child: Center(
-                    child: Text('Event_2'),
-                  ),
+          child: Padding(
+            padding: EdgeInsets.all(10.0),
+                      child: Column(
+            
+              mainAxisAlignment: MainAxisAlignment.center,
+              
+              children: <Widget>[
                 
-                  
+                GestureDetector(
+                
+                  onTap: (){},
+                  child: Card(
+                    margin: EdgeInsets.fromLTRB( 10, 10, 10,10 ),
+                    
+                    child: Center(
+                      child: Text('Event_1'),
+                    ),
+                  ),
                 ),
-              )
-            ],
+                GestureDetector(
+                  onTap: (){},
+                  child: Card(
+                    margin: EdgeInsets.fromLTRB( 10, 10, 10,10 ),
+                    child: Center(
+                      
+                      child: Text('Event_2'),
+                    ),
+                  
+                    
+                  ),
+                )
+              ],
+            ),
           ),
         ),
         
