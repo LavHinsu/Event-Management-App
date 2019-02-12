@@ -16,8 +16,8 @@ class AfterLogin extends StatefulWidget {
 
 class _AfterLogin extends State<AfterLogin> {
   final FirebaseAuth auth = FirebaseAuth.instance;
-  List<Widget> eventChildren = List();
-  List list = List();
+  // List<Widget> eventChildren = List();
+  //List list = List();
   List<String> ids = new List();
   List<String> names = new List();
   List<String> nop = new List();
