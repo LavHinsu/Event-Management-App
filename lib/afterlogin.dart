@@ -22,7 +22,7 @@ class _AfterLogin extends State<AfterLogin> {
   List<String> names = new List();
   List<String> nop = new List();
 
-  bool loaded=false;
+  bool loaded = false;
 
   @override
   void initState() {
@@ -34,34 +34,35 @@ class _AfterLogin extends State<AfterLogin> {
   // TODO: implement widget
   Widget build(BuildContext context) {
     return Scaffold(
-        drawer: Drawer(
-          child: ListView(
-            children: <Widget>[
-              UserAccountsDrawerHeader(
-                  accountName: Text(username), accountEmail: null),
-              ListTile(
-                leading: Icon(Icons.home),
-                title: Text("Home"),
-              ),
-              ListTile(
-                leading: Icon(Icons.account_box),
-                title: Text("Log Out"),
-                onTap: () async {
-                  await auth.signOut();
-                  Navigator.of(context).pop();
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => AfterSplash()));
-                },
-              ),
-            ],
-          ),
+      drawer: Drawer(
+        child: ListView(
+          children: <Widget>[
+            UserAccountsDrawerHeader(
+                accountName: Text(username), accountEmail: null),
+            ListTile(
+              leading: Icon(Icons.home),
+              title: Text("Home"),
+            ),
+            ListTile(
+              leading: Icon(Icons.account_box),
+              title: Text("Log Out"),
+              onTap: () async {
+                await auth.signOut();
+                Navigator.of(context).pop();
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => AfterSplash()));
+              },
+            ),
+          ],
         ),
-        appBar: AppBar(
-          title: Text('Home'),
-        ),
-        body:Center(
-          child: _events(),
-        ),);
+      ),
+      appBar: AppBar(
+        title: Text('Home'),
+      ),
+      body: Center(
+        child: _events(),
+      ),
+    );
   }
 
   void fetch() async {
@@ -80,41 +81,40 @@ class _AfterLogin extends State<AfterLogin> {
       //print(temp['no-of-participants']);
     }
     setState(() {
-      loaded=true;
+      loaded = true;
     });
 
     print(ids);
     print(names);
     print(nop);
-
-
   }
 
-  Widget _events(){
-    if(loaded){
-    return Center(
-          child: ListView.builder(
+  Widget _events() {
+    if (loaded) {
+      return Center(
+        child: ListView.builder(
             itemCount: ids.length,
             itemBuilder: (context, index) {
               return GestureDetector(
-                onTap: (){
+                onTap: () {
                   print(index);
                   final snackBar = SnackBar(content: Text("Tap on $index"));
                   Scaffold.of(context).showSnackBar(snackBar);
                 },
-                            child: Card(
-                              child: Center(
+                child: Card(
+                  margin: EdgeInsets.fromLTRB(10, 10, 10, 10),
+                  child: Center(
                     child: Padding(
                       padding: const EdgeInsets.all(30.0),
-                      child: Text(names[index]),
+                      child:
+                          Text(names[index], style: TextStyle(fontSize: 32.0)),
                     ),
                   ),
                 ),
               );
             }),
-    );
-    }
-    else
-    return CircularProgressIndicator();
+      );
+    } else
+      return CircularProgressIndicator();
   }
 }
