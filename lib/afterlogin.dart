@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:http/http.dart';
 import 'login.dart';
 import 'user.dart';
-import 'package:http/http.dart';
+//import 'package:http/http.dart';
+import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 //import 'user.dart' as user;
@@ -15,6 +17,12 @@ class AfterLogin extends StatefulWidget {
 class _AfterLogin extends State<AfterLogin> {
   final FirebaseAuth auth = FirebaseAuth.instance;
   List<Widget> eventChildren = List();
+  List list = List();
+  List<String> ids = new List();
+  List<String> names = new List();
+  List<String> nop = new List();
+
+  bool loaded=false;
 
   @override
   void initState() {
@@ -49,154 +57,64 @@ class _AfterLogin extends State<AfterLogin> {
           ),
         ),
         appBar: AppBar(
-          title: Text('AfterLogin'),
+          title: Text('Home'),
         ),
-        body: Builder(builder: (BuildContext buildContext) {
-          return Container(
-            child: Padding(
-              padding: EdgeInsets.all(18.0),
-              child: ListView(children: eventChildren),
-            ),
-          );
-        }));
+        body:Center(
+          child: _events(),
+        ),);
   }
 
   void fetch() async {
-//    Response response =
-//        await get(Uri.encodeFull(""), headers: {"Accept": "application/json"});
-//    var json = jsonDecode(response.body);
-    var widgets = <Widget>[];
-    widgets.add(GestureDetector(
-      onTap: () {},
-      child: Card(
-        elevation: 8.0,
-        margin: EdgeInsets.fromLTRB(10, 10, 10, 10),
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(48.0),
-            child: Text(
-              'Event_1',
-              style: TextStyle(fontSize: 32.0),
-            ),
-          ),
-        ),
-      ),
-    ));
-    widgets.add(GestureDetector(
-      onTap: () {},
-      child: Card(
-        elevation: 8.0,
-        margin: EdgeInsets.fromLTRB(10, 10, 10, 10),
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(48.0),
-            child: Text(
-              'Event_1',
-              style: TextStyle(fontSize: 32.0),
-            ),
-          ),
-        ),
-      ),
-    ));
-    widgets.add(GestureDetector(
-      onTap: () {},
-      child: Card(
-        elevation: 8.0,
-        margin: EdgeInsets.fromLTRB(10, 10, 10, 10),
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(48.0),
-            child: Text(
-              'Event_1',
-              style: TextStyle(fontSize: 32.0),
-            ),
-          ),
-        ),
-      ),
-    ));
-    widgets.add(GestureDetector(
-      onTap: () {},
-      child: Card(
-        elevation: 8.0,
-        margin: EdgeInsets.fromLTRB(10, 10, 10, 10),
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(48.0),
-            child: Text(
-              'Event_1',
-              style: TextStyle(fontSize: 32.0),
-            ),
-          ),
-        ),
-      ),
-    ));
-    widgets.add(GestureDetector(
-      onTap: () {},
-      child: Card(
-        elevation: 8.0,
-        margin: EdgeInsets.fromLTRB(10, 10, 10, 10),
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(48.0),
-            child: Text(
-              'Event_1',
-              style: TextStyle(fontSize: 32.0),
-            ),
-          ),
-        ),
-      ),
-    ));
-    widgets.add(GestureDetector(
-      onTap: () {},
-      child: Card(
-        elevation: 8.0,
-        margin: EdgeInsets.fromLTRB(10, 10, 10, 10),
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(48.0),
-            child: Text(
-              'Event_1',
-              style: TextStyle(fontSize: 32.0),
-            ),
-          ),
-        ),
-      ),
-    ));
-    widgets.add(GestureDetector(
-      onTap: () {},
-      child: Card(
-        elevation: 8.0,
-        margin: EdgeInsets.fromLTRB(10, 10, 10, 10),
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(48.0),
-            child: Text(
-              'Event_1',
-              style: TextStyle(fontSize: 32.0),
-            ),
-          ),
-        ),
-      ),
-    ));
-    widgets.add(GestureDetector(
-      onTap: () {},
-      child: Card(
-        elevation: 8.0,
-        margin: EdgeInsets.fromLTRB(10, 10, 10, 10),
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(48.0),
-            child: Text(
-              'Event_1',
-              style: TextStyle(fontSize: 32.0),
-            ),
-          ),
-        ),
-      ),
-    ));
+    Response response = await get("https://lav-hinsu.github.io/events.json");
+    var data = jsonDecode(response.body);
+    int objectlength = data.length;
 
+    for (int i = 0; i < objectlength; i++) {
+      //print(i);
+      var temp = data[i];
+      //print(temp['id']);
+      ids.add(temp['id']);
+      names.add(temp['name']);
+      nop.add(temp['no-of-participants']);
+      //print(data[i]);
+      //print(temp['no-of-participants']);
+    }
     setState(() {
-      eventChildren = widgets;
+      loaded=true;
     });
+
+    print(ids);
+    print(names);
+    print(nop);
+
+
+  }
+
+  Widget _events(){
+    if(loaded){
+    return Center(
+          child: ListView.builder(
+            itemCount: ids.length,
+            itemBuilder: (context, index) {
+              return GestureDetector(
+                onTap: (){
+                  print(index);
+                  final snackBar = SnackBar(content: Text("Tap on $index"));
+                  Scaffold.of(context).showSnackBar(snackBar);
+                },
+                            child: Card(
+                              child: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(30.0),
+                      child: Text(names[index]),
+                    ),
+                  ),
+                ),
+              );
+            }),
+    );
+    }
+    else
+    return CircularProgressIndicator();
   }
 }
