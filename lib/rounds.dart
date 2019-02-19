@@ -6,34 +6,30 @@ import 'user.dart';
 //import 'package:http/http.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'rounds.dart';
+import 'afterlogin.dart';
+import 'participants.dart';
 
-//import 'user.dart' as user;
-
-class AfterLogin extends StatefulWidget {
+class Rounds extends StatefulWidget {
+  final String eventid;
+  Rounds({Key key, @required this.eventid}) : super(key: key);
   @override
-  _AfterLogin createState() => new _AfterLogin();
+  _Rounds createState() => new _Rounds();
 }
 
-class _AfterLogin extends State<AfterLogin> {
-  final FirebaseAuth auth = FirebaseAuth.instance;
-  // List<Widget> eventChildren = List();
-  //List list = List();
-  List<String> ids = new List();
-  List<String> names = new List();
-  List<String> nop = new List();
-  var id;
-
-  bool loaded = false;
-
+class _Rounds extends State<Rounds> {
   @override
   void initState() {
     super.initState();
-    fetch();
+    //print(widget.eventid);
+    fetchrounds();
   }
 
-  @override
-  
+  final String data = null;
+  final FirebaseAuth auth = FirebaseAuth.instance;
+  List<String> round = new List();
+  int count;
+  bool loaded = false;
+
   Widget build(BuildContext context) {
     return Scaffold(
       drawer: Drawer(
@@ -62,47 +58,39 @@ class _AfterLogin extends State<AfterLogin> {
         title: Text('Home'),
       ),
       body: Center(
-        child: _events(),
+        child: _rounds(),
       ),
     );
   }
 
-  void fetch() async {
-    Response response = await get("https://lav-hinsu.github.io/events.json");
+  fetchrounds() async {
+    Response response = await get("https://lav-hinsu.github.io/rounds.json");
     var data = jsonDecode(response.body);
-    int objectlength = data.length;
+    int objectlength = data['event_id'].length;
 
-    for (int i = 0; i < objectlength; i++) {
-      //print(i);
-      var temp = data[i];
-      //print(temp['id']);
-      ids.add(temp['id']);
-      names.add(temp['name']);
-      nop.add(temp['no-of-participants']);
-      //print(data[i]);
-      //print(temp['no-of-participants']);
-    }
+    var event = data['event_id'];
+    //var participants= rounds['participants'];
+
+    var rounds = event['rounds'];
+    count = rounds['count'];
+    
+    print(count);
     setState(() {
       loaded = true;
     });
-    
-  //  print(ids);
-    //print(names);
-    //print(nop);
   }
 
-  Widget _events() {
-    if (loaded) {
-      return Center(
+  Widget _rounds() {
+     if (loaded) {
+    return Center(
         child: ListView.builder(
-            itemCount: ids.length,
+            itemCount: count,
             itemBuilder: (context, index) {
               return GestureDetector(
                 onTap: () {
-                  print(index);
-                 Navigator.push(context,MaterialPageRoute(builder: (context)=>Rounds(eventid:ids[index])));
-                  //final snackBar = SnackBar(content: Text("Tap on $index"));
-                  //Scaffold.of(context).showSnackBar(snackBar);
+                  //print(index);
+                Navigator.push(context,MaterialPageRoute(builder: (context)=>Participants(roundno:index)));
+
                 },
                 child: Card(
                   margin: EdgeInsets.fromLTRB(10, 10, 10, 10),
@@ -110,14 +98,17 @@ class _AfterLogin extends State<AfterLogin> {
                     child: Padding(
                       padding: const EdgeInsets.all(30.0),
                       child:
-                          Text(names[index], style: TextStyle(fontSize: 32.0)),
+                          Text("$index"),
                     ),
                   ),
                 ),
               );
             }),
       );
-    } else
-      return CircularProgressIndicator();
+  }else{
+
+    return CircularProgressIndicator();
   }
+  }
+  
 }

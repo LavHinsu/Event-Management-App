@@ -4,12 +4,14 @@ import 'login.dart';
 import 'afterlogin.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'user.dart' as userdart;
+import 'rounds.dart';
 
 void main() {
   runApp(new MaterialApp(
     debugShowCheckedModeBanner: false,
     home: new MyApp(),
-    routes: {'/afterlogin': (context) => AfterLogin()},
+    routes: {
+      '/afterlogin': (context) => AfterLogin(),},
   ));
 }
 
@@ -50,14 +52,14 @@ class _MyAppState extends State<MyApp> {
       seconds: 5,
       navigateAfterSeconds: loggedin?new AfterLogin():new AfterSplash(),
       title: new Text(
-        'Welcome In SplashScreen',
+        'Event App For Managers',
         style: new TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0),
       ),
       image: new Image.network(
-          'https://flutter.io/images/catalog-widget-placeholder.png'),
+          'https://udaan19.in/img/logo.8a82523f.png'),
       backgroundColor: Colors.white,
       styleTextUnderTheLoader: new TextStyle(),
-      photoSize: 100.0,
+      photoSize: 100,
       onClick: () => null,
       loaderColor: Colors.red,
     );
