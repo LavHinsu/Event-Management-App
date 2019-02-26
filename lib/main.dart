@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:splashscreen/splashscreen.dart';
-import 'login.dart';
-import 'afterlogin.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:splashscreen/splashscreen.dart';
+
+import 'afterlogin.dart';
 import 'user.dart' as userdart;
-import 'rounds.dart';
 
 void main() {
   runApp(new MaterialApp(
@@ -27,21 +26,21 @@ class _MyAppState extends State<MyApp> {
 
   @override
   void initState(){
-     SharedPreferences.getInstance()..then((prefs){
-        setState(() {
-          this.prefs=prefs;
-           uid=prefs.getString("user");
-           userdart.username=prefs.getString('username');
-           if(uid!=null)
-            {
-              print("loggedin");
-              print(uid);
-              loggedin=true; 
-            }
-          else{
-      //do nothing here
-           }
-        });
+    super.initState();
+    SharedPreferences.getInstance()..then((prefs){
+      setState(() {
+        this.prefs=prefs;
+        uid=prefs.getString("user");
+        userdart.username=prefs.getString('username');
+        if(uid!=null) {
+          print("loggedin");
+          print(uid);
+          loggedin=true;
+        }
+        else{
+          //do nothing here
+        }
+      });
     });
   }
 
@@ -50,7 +49,7 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return new SplashScreen(
       seconds: 5,
-      navigateAfterSeconds: loggedin?new AfterLogin():new AfterSplash(),
+      navigateAfterSeconds: loggedin ? new AfterLogin() : new AfterLogin(),
       title: new Text(
         'Event App For Managers',
         style: new TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0),

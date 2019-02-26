@@ -1,0 +1,179 @@
+[
+  {
+    "_id": "5c5ee037cfca2b0017e26e24",
+    "participants": [
+      {
+        "name": "dawdwqdwa",
+        "phone": "7016233939"
+      },
+      {
+        "name": "wadawdawd",
+        "phone": "897415154"
+      },
+      {
+        "name": "foidhbdadwwa",
+        "phone": "8694565434"
+      },
+      {
+        "name": "AAwdawdawd",
+        "phone": "686868686"
+      },
+      {
+        "name": "OIAHWDOIAWH",
+        "phone": "78676765534"
+      }
+    ],
+    "department": "non-tech",
+    "description": "genesis event",
+    "prizeMoney": [
+      20
+    ],
+    "entryFee": 40,
+    "eventName": "Potterhead",
+    "eventType": "non-tech",
+    "managers": [
+      {
+        "name": "Darshan Rathod",
+        "phone": "9714413435"
+      },
+      {
+        "name": "Sarita Chaudhary",
+        "phone": "7096315197"
+      },
+      {
+        "name": "Dharmik",
+        "phone": "9104645348"
+      },
+      {
+        "name": "Lav",
+        "phone": "9824390810"
+      }
+    ],
+    "rounds": [
+      "Quiz on Wizarding World (Harry Potter & Fantastic Beasts)",
+      "It's about your creativity The team is said to be one person (like fictional character from wizarding world) and write everything about that person like Hogwarts house, wand, favourite class, spells, beasts, everything they know.",
+      "Find the Horcruxes hints will be given for each horcrux. There are Seven horcruxes when they find one horcrux they should say atleast two points about that horcrux and the second hint will be given. Similar for all seven. Collector team of all horcruxes is winner if any of the team cannot collect all horcruxes, the winner is the one who having more horcruxes."
+    ],
+    "tagline": "Swish and flick your wands..!",
+    "teamSize": 2,
+    "notes": null
+  },
+  {
+    "_id": "5c5ee0b3cfca2b0017e26e25",
+    "participants": [
+      {
+        "name": "Akshar Patel",
+        "phone": "7016233939"
+      },
+      {
+        "name": "wadawdawd",
+        "phone": "897415154"
+      },
+      {
+        "name": "foidhbdadwwa",
+        "phone": "8694565434"
+      },
+      {
+        "name": "AAwdawdawd",
+        "phone": "686868686"
+      },
+      {
+        "name": "OIAHWDOIAWH",
+        "phone": "78676765534"
+      }
+    ],
+    "department": "non-tech",
+    "description": "genesis event",
+    "prizeMoney": [
+      20
+    ],
+    "entryFee": 40,
+    "eventName": "Guru",
+    "eventType": "non-tech",
+    "managers": [
+      {
+        "name": "Simran Malhotra",
+        "phone": "9601498897"
+      },
+      {
+        "name": "Shreya Jarsania",
+        "phone": "9662011073"
+      },
+      {
+        "name": "Akshar Patel",
+        "phone": "9327932117"
+      },
+      {
+        "name": "Lav",
+        "phone": "9824390810"
+      }
+    ],
+    "rounds": [
+      "Do odd jobs or anything entertaining and collect money as much as possible within time limit and submit at the end. ",
+      "Collect the things mentioned in a list in 30 mins. ",
+      "Using virtual money bet on the events and prove your guessing ability."
+    ],
+    "tagline": "Touch the sky!! ",
+    "teamSize": 2,
+    "notes": null
+  },
+  {
+    "_id": "5c5ee128cfca2b0017e26e26",
+    "participants": [
+      {
+        "name": "bgfbgfb",
+        "phone": "7016233939"
+      },
+      {
+        "name": "wadawdawd",
+        "phone": "897415154"
+      },
+      {
+        "name": "foidhbdadwwa",
+        "phone": "8694565434"
+      },
+      {
+        "name": "AAwdawdawd",
+        "phone": "686868686"
+      },
+      {
+        "name": "OIAHWDOIAWH",
+        "phone": "78676765534"
+      }
+    ],
+    "department": "non-tech",
+    "description": "genesis event",
+    "prizeMoney": [
+      20
+    ],
+    "entryFee": 30,
+    "eventName": "Sherlocked! ",
+    "eventType": "non-tech",
+    "managers": [
+      {
+        "name": "Dhruvika Vankar",
+        "phone": "9925105258"
+      },
+      {
+        "name": "Saralita Nair",
+        "phone": "7016233939"
+      },
+      {
+        "name": "Rajdeep Solanki",
+        "phone": "8153084929"
+      },
+      {
+        "name": "Lav",
+        "phone": "9824390810"
+      }
+    ],
+    "rounds": [
+      "A ppt based picture-questionnaire and similar puzzles to test observation and deduction skills.",
+      "Treasure hunt using cryptic clues ",
+      "Finalists will be made to impersonate sherlock and watson's astute detective skills to solve mini mysteries."
+    ],
+    "tagline": "It isn't as elementary as you think!",
+    "teamSize": 2,
+    "notes": null
+  }
+]

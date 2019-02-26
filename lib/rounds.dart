@@ -1,13 +1,17 @@
-import 'package:flutter/material.dart';
+import 'dart:convert';
+
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:http/http.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show rootBundle;
+
 import 'login.dart';
 import 'user.dart';
 //import 'package:http/http.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-import 'afterlogin.dart';
-import 'participants.dart';
+
+
+Future<String> getFileData(String path) async {
+  return await rootBundle.loadString(path);
+}
 
 class Rounds extends StatefulWidget {
   final String eventid;
@@ -17,10 +21,19 @@ class Rounds extends StatefulWidget {
 }
 
 class _Rounds extends State<Rounds> {
+  int currentRound = 0;
+  List rounds = List();
+  var currentList;
+  List<String> names = List();
+  List<String> phone = List();
+  List<bool> attend = List();
+  List<bool> promote = List();
+
   @override
   void initState() {
     super.initState();
     //print(widget.eventid);
+
     fetchrounds();
   }
 
@@ -55,8 +68,28 @@ class _Rounds extends State<Rounds> {
         ),
       ),
       appBar: AppBar(
-        title: Text('Home'),
+        title: DropdownButton(
+            items: <DropdownMenuItem>[
+              DropdownMenuItem(child: Text('Round 1')),
+              DropdownMenuItem(child: Text('Round 2')),
+              DropdownMenuItem(child: Text('Round 3')),
+              DropdownMenuItem(child: Text('Winner')),
+            ],
+            onChanged: (i) {
+              setState(() {
+                currentRound = i;
+                currentList = i >= rounds.length ? null : rounds[currentRound];
+              });
+            }),
       ),
+      bottomNavigationBar:
+      BottomNavigationBar(onTap: (i) {}, items: <BottomNavigationBarItem>[
+        BottomNavigationBarItem(
+          icon: Icon(Icons.add),
+          title: Text("Attendance"),
+        ),
+        BottomNavigationBarItem(icon: Icon(Icons.add), title: Text("Promote"))
+      ]),
       body: Center(
         child: _rounds(),
       ),
@@ -64,51 +97,54 @@ class _Rounds extends State<Rounds> {
   }
 
   fetchrounds() async {
-    Response response = await get("https://lav-hinsu.github.io/rounds.json");
-    var data = jsonDecode(response.body);
-    int objectlength = data['event_id'].length;
+    String json = await getFileData("assets/events.json");
+    List events = jsonDecode(json);
+    for (int i = 0; i < events.length; i++) {
+      if (events[i]["_id"].toString() == widget.eventid) {
+        events[i]["participants"].forEach((participant) {
+          names.add(participant["name"]);
+          phone.add(participant["phone"]);
+          attend.add(false);
+          promote.add(false);
+        });
+        break;
+      }
+    }
 
-    var event = data['event_id'];
-    //var participants= rounds['participants'];
+    rounds.add(ListView.builder(
+        itemCount: names.length,
+        itemBuilder: (context, index) {
+          return Card(
+            margin: EdgeInsets.fromLTRB(10, 10, 10, 10),
+            child: Center(
+              child: Padding(
+                  padding: const EdgeInsets.all(30.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Text(names[index]),
+                      Checkbox(
+                        value: true,
+                        onChanged: null,
+                      )
+                    ],
+                  )),
+            ),
+          );
+        }));
 
-    var rounds = event['rounds'];
-    count = rounds['count'];
-    
     print(count);
     setState(() {
       loaded = true;
+      currentList = rounds[currentRound] == null ? null : rounds[currentRound];
     });
   }
 
   Widget _rounds() {
-     if (loaded) {
-    return Center(
-        child: ListView.builder(
-            itemCount: count,
-            itemBuilder: (context, index) {
-              return GestureDetector(
-                onTap: () {
-                  //print(index);
-               // Navigator.push(context,MaterialPageRoute(builder: (context)=>Participants(roundno:index)));
-
-                },
-                child: Card(
-                  margin: EdgeInsets.fromLTRB(10, 10, 10, 10),
-                  child: Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(30.0),
-                      child:
-                          Text("$index"),
-                    ),
-                  ),
-                ),
-              );
-            }),
-      );
-  }else{
-
-    return CircularProgressIndicator();
+    if (loaded) {
+      return Center(child: currentList);
+    } else {
+      return CircularProgressIndicator();
+    }
   }
-  }
-  
 }

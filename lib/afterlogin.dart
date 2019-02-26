@@ -1,12 +1,19 @@
-import 'package:flutter/material.dart';
+import 'dart:convert';
+
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:http/http.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show rootBundle;
+
 import 'login.dart';
+import 'rounds.dart';
 import 'user.dart';
 //import 'package:http/http.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-import 'rounds.dart';
+
+
+Future<String> getFileData(String path) async {
+  return await rootBundle.loadString(path);
+}
+
 
 //import 'user.dart' as user;
 
@@ -17,6 +24,7 @@ class AfterLogin extends StatefulWidget {
 
 class _AfterLogin extends State<AfterLogin> {
   final FirebaseAuth auth = FirebaseAuth.instance;
+
   // List<Widget> eventChildren = List();
   //List list = List();
   List<String> ids = new List();
@@ -26,6 +34,8 @@ class _AfterLogin extends State<AfterLogin> {
 
   bool loaded = false;
 
+  final GlobalKey<ScaffoldState> key = GlobalKey<ScaffoldState>();
+
   @override
   void initState() {
     super.initState();
@@ -33,9 +43,9 @@ class _AfterLogin extends State<AfterLogin> {
   }
 
   @override
-  
   Widget build(BuildContext context) {
     return Scaffold(
+      key: key,
       drawer: Drawer(
         child: ListView(
           children: <Widget>[
@@ -68,25 +78,18 @@ class _AfterLogin extends State<AfterLogin> {
   }
 
   void fetch() async {
-    Response response = await get("https://lav-hinsu.github.io/events.json");
-    var data = jsonDecode(response.body);
-    int objectlength = data.length;
-
-    for (int i = 0; i < objectlength; i++) {
-      //print(i);
-      var temp = data[i];
-      //print(temp['id']);
-      ids.add(temp['id']);
-      names.add(temp['name']);
-      nop.add(temp['no-of-participants']);
-      //print(data[i]);
-      //print(temp['no-of-participants']);
-    }
+    String json = await getFileData("assets/events.json");
+    List events = jsonDecode(json);
+    events.forEach((event) {
+      ids.add(event["_id"]);
+      names.add(event["eventName"]);
+    });
+    print(ids + names);
     setState(() {
       loaded = true;
     });
-    
-  //  print(ids);
+
+    //  print(ids);
     //print(names);
     //print(nop);
   }
@@ -100,7 +103,7 @@ class _AfterLogin extends State<AfterLogin> {
               return GestureDetector(
                 onTap: () {
                   print(index);
-                 Navigator.push(context,MaterialPageRoute(builder: (context)=>Rounds(eventid:ids[index])));
+                  Navigator.push(context,MaterialPageRoute(builder: (context)=>Rounds(eventid:ids[index])));
                   //final snackBar = SnackBar(content: Text("Tap on $index"));
                   //Scaffold.of(context).showSnackBar(snackBar);
                 },
@@ -110,7 +113,7 @@ class _AfterLogin extends State<AfterLogin> {
                     child: Padding(
                       padding: const EdgeInsets.all(30.0),
                       child:
-                          Text(names[index], style: TextStyle(fontSize: 32.0)),
+                      Text(names[index], style: TextStyle(fontSize: 32.0)),
                     ),
                   ),
                 ),
