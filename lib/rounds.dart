@@ -89,7 +89,7 @@ class _Rounds extends State<Rounds> {
               return GestureDetector(
                 onTap: () {
                   //print(index);
-                Navigator.push(context,MaterialPageRoute(builder: (context)=>Participants(roundno:index)));
+               // Navigator.push(context,MaterialPageRoute(builder: (context)=>Participants(roundno:index)));
 
                 },
                 child: Card(
