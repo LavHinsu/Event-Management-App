@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:splashscreen/splashscreen.dart';
 
 import 'afterlogin.dart';
+import 'login.dart';
 import 'user.dart' as userdart;
 
 void main() {
@@ -49,7 +50,7 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return new SplashScreen(
       seconds: 5,
-      navigateAfterSeconds: loggedin ? new AfterLogin() : new AfterLogin(),
+      navigateAfterSeconds: loggedin ? new AfterLogin() : AfterSplash(),
       title: new Text(
         'Event App For Managers',
         style: new TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0),

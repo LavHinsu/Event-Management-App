@@ -8,7 +8,6 @@ import 'login.dart';
 import 'user.dart';
 //import 'package:http/http.dart';
 
-
 Future<String> getFileData(String path) async {
   return await rootBundle.loadString(path);
 }
@@ -82,14 +81,22 @@ class _Rounds extends State<Rounds> {
               });
             }),
       ),
-      bottomNavigationBar:
-      BottomNavigationBar(onTap: (i) {}, items: <BottomNavigationBarItem>[
-        BottomNavigationBarItem(
-          icon: Icon(Icons.add),
-          title: Text("Attendance"),
-        ),
-        BottomNavigationBarItem(icon: Icon(Icons.add), title: Text("Promote"))
-      ]),
+      bottomNavigationBar: BottomNavigationBar(
+          onTap: (i) {
+            switch (i) {
+              case 0:
+                showDialog(
+                    context: context, builder: (context) => optionDialog);
+            }
+          },
+          items: <BottomNavigationBarItem>[
+            BottomNavigationBarItem(
+              icon: Icon(Icons.add),
+              title: Text("Attendance"),
+            ),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.add), title: Text("Promote"))
+          ]),
       body: Center(
         child: _rounds(),
       ),
@@ -147,4 +154,17 @@ class _Rounds extends State<Rounds> {
       return CircularProgressIndicator();
     }
   }
+
+  SimpleDialog optionDialog = SimpleDialog(
+    children: <Widget>[
+      SimpleDialogOption(
+        child: Center(child: Text("Edit", style: TextStyle(fontSize: 28.0,),)),
+        onPressed: null,
+      ), SimpleDialogOption(
+        child: Center(
+            child: Text("Confirm", style: TextStyle(fontSize: 28.0,),)),
+        onPressed: null,
+      )
+    ],
+  );
 }
