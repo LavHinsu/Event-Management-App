@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'afterlogin.dart';
+
 import 'user.dart' as User;
 
 class AfterSplash extends StatefulWidget {
@@ -72,74 +72,87 @@ class _AfterSplash extends State<AfterSplash> {
   Widget build(BuildContext context) {
     return new Scaffold(
       body: SafeArea(
-        child: new Center(
-            child: Column(
-          children: <Widget>[
-            Expanded(
+        child: Container(
+          decoration: BoxDecoration(image: DecorationImage(
+              image: AssetImage("assets/images/background.png"),
+              fit: BoxFit.fill)),
+          child: new Center(
+            
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[FlutterLogo(size: 100)],
-                  )
+                  Spacer(),
+                  Expanded(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          Container(
+                            margin: EdgeInsets.fromLTRB(30, 10, 30, 0),
+                            child: Stack(
+                              alignment: AlignmentDirectional.center,
+                              children: <Widget>[
+                                Image(image: AssetImage(
+                                    "assets/images/textfield.png"),),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 12.0),
+                                  child: TextField(
+                                    keyboardType: TextInputType.emailAddress,
+                                    decoration: InputDecoration.collapsed(
+                                        hintText: "Phone number"),
+                                    onChanged: (String val) {
+                                      if (val != null) Username = val;
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Container(
+                            margin: EdgeInsets.fromLTRB(30, 20, 30, 0),
+                            child: Stack(
+                              alignment: AlignmentDirectional.center,
+                              children: <Widget>[
+                                Image(image: AssetImage(
+                                    "assets/images/textfield.png"),),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 12.0),
+                                  child: TextField(
+                                    obscureText: true,
+                                    decoration: InputDecoration.collapsed(
+                                        hintText: "Password"),
+                                    onChanged: (String val) {
+                                      if (val != null) Password = val;
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Container(
+                              margin: EdgeInsets.fromLTRB(0, 15, 30, 0),
+                              alignment: Alignment.center,
+                              child: Stack(
+                                alignment: AlignmentDirectional.center,
+                                children: <Widget>[
+                                  Image(image: AssetImage(
+                                      "assets/images/button.png"),),
+                                  Align(child: Text("Log In",
+                                    style: TextStyle(fontSize: 18.0,),),
+                                      alignment: AlignmentDirectional.center)
+                                ],
+                              )),
+                          Expanded(
+
+                              child: FlatButton(
+                                child: Text('Forgot Password'),
+                                onPressed: () {},
+                              ))
+                        ],
+                      ))
                 ],
-              ),
-            ),
-            Expanded(
-                child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Container(
-                  margin: EdgeInsets.fromLTRB(30, 0, 30, 0),
-                  child: TextField(
-                    keyboardType: TextInputType.emailAddress,
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      labelText: 'Email Address',
-                    ),
-                    onChanged: (String val) {
-                      if (val != null) Username = val;
-                    },
-                  ),
-                ),
-                Container(
-                  margin: EdgeInsets.fromLTRB(30, 20, 30, 0),
-                  child: TextField(
-                    obscureText: true,
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      labelText: 'Password',
-                    ),
-                    onChanged: (String val) {
-                      if (val != null) Password = val;
-                    },
-                  ),
-                ),
-                Container(
-                    margin: EdgeInsets.fromLTRB(0, 15, 30, 0),
-                    alignment: Alignment.bottomRight,
-                    child: FlatButton(
-                      child: Text('Login'),
-                      onPressed: () {
-                        signIn();
-                      },
-                    )),
-                Container(
-                    margin: EdgeInsets.fromLTRB(0, 0, 0, 0),
-                    alignment: Alignment.bottomCenter,
-                    child: FlatButton(
-                      child: Text('Forgot Password'),
-                      onPressed: () {},
-                    ))
-              ],
-            ))
-          ],
-        )),
+              )),
+        ),
       ),
     );
   }

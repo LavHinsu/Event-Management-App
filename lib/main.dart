@@ -48,20 +48,16 @@ class _MyAppState extends State<MyApp> {
   
   @override
   Widget build(BuildContext context) {
-    return new SplashScreen(
-      seconds: 5,
-      navigateAfterSeconds: loggedin ? new AfterLogin() : AfterSplash(),
-      title: new Text(
-        'Event App For Managers',
-        style: new TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0),
+    return Center(
+      child: SplashScreen(
+        seconds: 5,
+        navigateAfterSeconds: loggedin ? new AfterLogin() : AfterSplash(),
+
+        image: Image(image: AssetImage("assets/images/udaan_logo.png")),
+        backgroundColor: Colors.white,
+        photoSize: 100,
+        onClick: () => null,
       ),
-      image: new Image.network(
-          'https://udaan19.in/img/logo.8a82523f.png'),
-      backgroundColor: Colors.white,
-      styleTextUnderTheLoader: new TextStyle(),
-      photoSize: 100,
-      onClick: () => null,
-      loaderColor: Colors.red,
     );
   }
 }
