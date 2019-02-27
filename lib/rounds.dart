@@ -25,6 +25,21 @@ class _Rounds extends State<Rounds> {
   var currentList;
   List<String> names = List();
   List<String> phone = List();
+
+  List<String> round1names = List();
+  List<String> round1phone = List();
+
+  List<String> round2names = List();
+  List<String> round2phone = List();
+
+  List<String> round3names = List();
+  List<String> round3phone = List();
+
+  List<String> winnernames = List();
+  List<String> winnerphone = List();
+
+  List<bool> inputs = new List<bool>();
+
   List<bool> attend = List();
   List<bool> promote = List();
 
@@ -32,8 +47,16 @@ class _Rounds extends State<Rounds> {
   void initState() {
     super.initState();
     //print(widget.eventid);
-
+    for (int i = 0; i < 20; i++) {
+      inputs.add(true);
+    }
     fetchrounds();
+  }
+
+  void ItemChange(bool val, int index) {
+    setState(() {
+      inputs[index] = val;
+    });
   }
 
   final String data = null;
@@ -41,43 +64,35 @@ class _Rounds extends State<Rounds> {
   List<String> round = new List();
   int count;
   bool loaded = false;
+  List<String> roundsname = ["Round1", "Round2", "Round3", "Winners"];
 
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: Drawer(
-        child: ListView(
-          children: <Widget>[
-            UserAccountsDrawerHeader(
-                accountName: Text(username), accountEmail: null),
-            ListTile(
-              leading: Icon(Icons.home),
-              title: Text("Home"),
-            ),
-            ListTile(
-              leading: Icon(Icons.account_box),
-              title: Text("Log Out"),
-              onTap: () async {
-                await auth.signOut();
-                Navigator.of(context).pop();
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => AfterSplash()));
-              },
-            ),
-          ],
-        ),
-      ),
       appBar: AppBar(
+        leading: BackButton(),
         title: DropdownButton(
             items: <DropdownMenuItem>[
-              DropdownMenuItem(child: Text('Round 1')),
-              DropdownMenuItem(child: Text('Round 2')),
-              DropdownMenuItem(child: Text('Round 3')),
-              DropdownMenuItem(child: Text('Winner')),
+              DropdownMenuItem(
+                child: Text('Round 1'),
+                value: "Round1",
+              ),
+              DropdownMenuItem(
+                child: Text('Round 2'),
+                value: "Round2",
+              ),
+              DropdownMenuItem(
+                child: Text('Round 3'),
+                value: "Round3",
+              ),
+              DropdownMenuItem(
+                child: Text('Winner'),
+                value: "winners",
+              ),
             ],
-            onChanged: (i) {
+            onChanged: (value) {
               setState(() {
-                currentRound = i;
-                currentList = i >= rounds.length ? null : rounds[currentRound];
+                String _value = value;
+                print(value);
               });
             }),
       ),
@@ -117,39 +132,34 @@ class _Rounds extends State<Rounds> {
         break;
       }
     }
-
-    rounds.add(ListView.builder(
-        itemCount: names.length,
-        itemBuilder: (context, index) {
-          return Card(
-            margin: EdgeInsets.fromLTRB(10, 10, 10, 10),
-            child: Center(
-              child: Padding(
-                  padding: const EdgeInsets.all(30.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Text(names[index]),
-                      Checkbox(
-                        value: true,
-                        onChanged: null,
-                      )
-                    ],
-                  )),
-            ),
-          );
-        }));
-
     print(count);
     setState(() {
       loaded = true;
-      currentList = rounds[currentRound] == null ? null : rounds[currentRound];
     });
   }
 
   Widget _rounds() {
     if (loaded) {
-      return Center(child: currentList);
+      return ListView.builder(
+          itemCount: names.length,
+          itemBuilder: (context, index) {
+            return Card(
+              child: Container(
+                padding: EdgeInsets.all(10.0),
+                child: Column(
+                  children: <Widget>[
+                    CheckboxListTile(
+                      value: inputs[index],
+                      title: Text(names[index]),
+                      onChanged: (bool val) {
+                        ItemChange(val, index);
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            );
+          });
     } else {
       return CircularProgressIndicator();
     }
@@ -158,11 +168,23 @@ class _Rounds extends State<Rounds> {
   SimpleDialog optionDialog = SimpleDialog(
     children: <Widget>[
       SimpleDialogOption(
-        child: Center(child: Text("Edit", style: TextStyle(fontSize: 28.0,),)),
-        onPressed: null,
-      ), SimpleDialogOption(
         child: Center(
-            child: Text("Confirm", style: TextStyle(fontSize: 28.0,),)),
+            child: Text(
+          "Edit",
+          style: TextStyle(
+            fontSize: 28.0,
+          ),
+        )),
+        onPressed: null,
+      ),
+      SimpleDialogOption(
+        child: Center(
+            child: Text(
+          "Confirm",
+          style: TextStyle(
+            fontSize: 28.0,
+          ),
+        )),
         onPressed: null,
       )
     ],
