@@ -20,33 +20,27 @@ class _AfterSplash extends State<AfterSplash> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   static FirebaseUser user;
   void initState() {
-     /*prefs= await SharedPreferences.getInstance();
+    /*prefs= await SharedPreferences.getInstance();
       if(prefs.getBool("isloggedin",false))
      {
       Navigator.push(context,
                       MaterialPageRoute(builder: (context) => (AfterLogin())));
      }
      else{}
-     
+
     */
     //refs=  await SharedPreferences.getInstance();
-    SharedPreferences.getInstance()..then((prefs){
+    SharedPreferences.getInstance()
+      ..then((prefs) {
         setState(() {
-          this.prefs=prefs;
-           uid=prefs.getString("user");
-           usern=prefs.getString('username');
-           
+          this.prefs = prefs;
+          uid = prefs.getString("user");
+          usern = prefs.getString('username');
         });
-    });
-   
-    
-
+      });
   }
-  
-  
 
   // new Future.delayed(const Duration(seconds: 2));
- 
 
   void signIn() async {
     try {
@@ -60,7 +54,7 @@ class _AfterSplash extends State<AfterSplash> {
         User.user = user;
         print('Succesfull');
         prefs.setString("user", User.user.uid);
-        prefs.setString('username',User.username);
+        prefs.setString('username', User.username);
         Navigator.pushReplacementNamed(context, "/afterlogin");
       } else {
         print('Unsuccessfull');
@@ -73,11 +67,11 @@ class _AfterSplash extends State<AfterSplash> {
     return new Scaffold(
       body: SafeArea(
         child: Container(
-          decoration: BoxDecoration(image: DecorationImage(
-              image: AssetImage("assets/images/background.png"),
-              fit: BoxFit.fill)),
+          decoration: BoxDecoration(
+              image: DecorationImage(
+                  image: AssetImage("assets/images/background.png"),
+                  fit: BoxFit.fill)),
           child: new Center(
-            
               child: Column(
                 children: <Widget>[
                   Spacer(),
@@ -90,8 +84,10 @@ class _AfterSplash extends State<AfterSplash> {
                             child: Stack(
                               alignment: AlignmentDirectional.center,
                               children: <Widget>[
-                                Image(image: AssetImage(
-                                    "assets/images/textfield.png"),),
+                                Image(
+                                  image: AssetImage(
+                                      "assets/images/textfield.png"),
+                                ),
                                 Padding(
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 12.0),
@@ -112,14 +108,17 @@ class _AfterSplash extends State<AfterSplash> {
                             child: Stack(
                               alignment: AlignmentDirectional.center,
                               children: <Widget>[
-                                Image(image: AssetImage(
-                                    "assets/images/textfield.png"),),
+                                Image(
+                                  image: AssetImage(
+                                      "assets/images/textfield.png"),
+                                ),
                                 Padding(
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 12.0),
                                   child: TextField(
                                     obscureText: true,
-                                    decoration: InputDecoration.collapsed(
+                                    decoration:
+                                    InputDecoration.collapsed(
                                         hintText: "Password"),
                                     onChanged: (String val) {
                                       if (val != null) Password = val;
@@ -130,24 +129,41 @@ class _AfterSplash extends State<AfterSplash> {
                             ),
                           ),
                           Container(
-                              margin: EdgeInsets.fromLTRB(0, 15, 30, 0),
+                              margin: EdgeInsets.fromLTRB(0, 10, 0, 0),
                               alignment: Alignment.center,
-                              child: Stack(
-                                alignment: AlignmentDirectional.center,
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
                                 children: <Widget>[
-                                  Image(image: AssetImage(
-                                      "assets/images/button.png"),),
-                                  Align(child: Text("Log In",
-                                    style: TextStyle(fontSize: 18.0,),),
-                                      alignment: AlignmentDirectional.center)
+                                  Stack(
+                                    alignment: AlignmentDirectional.center,
+                                    children: <Widget>[
+                                      Image(
+                                        image: AssetImage(
+                                            "assets/images/button.png"),
+                                        width: 150.0,
+                                        height: 80.0,
+                                      ),
+                                      Align(
+                                          child: Text(
+                                            "Log In",
+                                            style: TextStyle(
+                                              fontSize: 18.0,
+                                            ),
+                                          ),
+                                          alignment: AlignmentDirectional
+                                              .center)
+                                    ],
+                                  ),
                                 ],
                               )),
-                          Expanded(
-
-                              child: FlatButton(
-                                child: Text('Forgot Password'),
-                                onPressed: () {},
-                              ))
+                          Align(
+                            alignment: AlignmentDirectional.center,
+                            child: FlatButton(
+                              color: Colors.transparent,
+                              child: Text("Forgot Password?"),
+                              onPressed: () {},
+                            ),
+                          )
                         ],
                       ))
                 ],
