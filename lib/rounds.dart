@@ -64,35 +64,28 @@ class _Rounds extends State<Rounds> {
   List<String> round = new List();
   int count;
   bool loaded = false;
-  List<String> roundsname = ["Round1", "Round2", "Round3", "Winners"];
+  static const menuItems = <String>["Round 1", "Round 2", "Round 3", "Winners"];
 
+  final List<DropdownMenuItem<String>> _dropDownMenuItems =
+      menuItems.map((String value) => DropdownMenuItem<String>(
+            value: value,
+            child: Text(value),
+          )).toList();
+
+    String _btn1SelectedVal='one';
+    String _btn2SelectedVal;
+    String _btn3SelectedVal;
+    
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         leading: BackButton(),
         title: DropdownButton(
-            items: <DropdownMenuItem>[
-              DropdownMenuItem(
-                child: Text('Round 1'),
-                value: "Round1",
-              ),
-              DropdownMenuItem(
-                child: Text('Round 2'),
-                value: "Round2",
-              ),
-              DropdownMenuItem(
-                child: Text('Round 3'),
-                value: "Round3",
-              ),
-              DropdownMenuItem(
-                child: Text('Winner'),
-                value: "winners",
-              ),
-            ],
-            onChanged: (value) {
+            value:_btn1SelectedVal,
+            items: this._dropDownMenuItems,
+            onChanged: (String newValue) {
               setState(() {
-                String _value = value;
-                print(value);
+                _btn1SelectedVal=newValue;
               });
             }),
       ),
