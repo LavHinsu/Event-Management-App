@@ -73,101 +73,97 @@ class _AfterSplash extends State<AfterSplash> {
                   fit: BoxFit.fill)),
           child: new Center(
               child: Column(
+            children: <Widget>[
+              Spacer(),
+              Expanded(
+                  child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  Spacer(),
-                  Expanded(
+                  Container(
+                    margin: EdgeInsets.fromLTRB(30, 10, 30, 0),
+                    child: Stack(
+                      alignment: AlignmentDirectional.center,
+                      children: <Widget>[
+                        Image(
+                          image: AssetImage("assets/images/textfield.png"),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                          child: TextField(
+                            keyboardType: TextInputType.emailAddress,
+                            decoration: InputDecoration.collapsed(
+                                hintText: "Email Address"),
+                            onChanged: (String val) {
+                              if (val != null) Username = val;
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    margin: EdgeInsets.fromLTRB(30, 20, 30, 0),
+                    child: Stack(
+                      alignment: AlignmentDirectional.center,
+                      children: <Widget>[
+                        Image(
+                          image: AssetImage("assets/images/textfield.png"),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                          child: TextField(
+                            obscureText: true,
+                            decoration:
+                                InputDecoration.collapsed(hintText: "Password"),
+                            onChanged: (String val) {
+                              if (val != null) Password = val;
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                      margin: EdgeInsets.fromLTRB(0, 10, 0, 0),
+                      alignment: Alignment.center,
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
-                          Container(
-                            margin: EdgeInsets.fromLTRB(30, 10, 30, 0),
+                          GestureDetector(
+                            onTap: signIn,
                             child: Stack(
                               alignment: AlignmentDirectional.center,
                               children: <Widget>[
                                 Image(
-                                  image: AssetImage(
-                                      "assets/images/textfield.png"),
+                                  image: AssetImage("assets/images/button.png"),
+                                  width: 150.0,
+                                  height: 80.0,
                                 ),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 12.0),
-                                  child: TextField(
-                                    keyboardType: TextInputType.emailAddress,
-                                    decoration: InputDecoration.collapsed(
-                                        hintText: "Phone number"),
-                                    onChanged: (String val) {
-                                      if (val != null) Username = val;
-                                    },
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Container(
-                            margin: EdgeInsets.fromLTRB(30, 20, 30, 0),
-                            child: Stack(
-                              alignment: AlignmentDirectional.center,
-                              children: <Widget>[
-                                Image(
-                                  image: AssetImage(
-                                      "assets/images/textfield.png"),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 12.0),
-                                  child: TextField(
-                                    obscureText: true,
-                                    decoration:
-                                    InputDecoration.collapsed(
-                                        hintText: "Password"),
-                                    onChanged: (String val) {
-                                      if (val != null) Password = val;
-                                    },
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Container(
-                              margin: EdgeInsets.fromLTRB(0, 10, 0, 0),
-                              alignment: Alignment.center,
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: <Widget>[
-                                  Stack(
-                                    alignment: AlignmentDirectional.center,
-                                    children: <Widget>[
-                                      Image(
-                                        image: AssetImage(
-                                            "assets/images/button.png"),
-                                        width: 150.0,
-                                        height: 80.0,
+                                Align(
+                                    child: Text(
+                                      "Log In",
+                                      style: TextStyle(
+                                        fontSize: 18.0,
                                       ),
-                                      Align(
-                                          child: Text(
-                                            "Log In",
-                                            style: TextStyle(
-                                              fontSize: 18.0,
-                                            ),
-                                          ),
-                                          alignment: AlignmentDirectional
-                                              .center)
-                                    ],
-                                  ),
-                                ],
-                              )),
-                          Align(
-                            alignment: AlignmentDirectional.center,
-                            child: FlatButton(
-                              color: Colors.transparent,
-                              child: Text("Forgot Password?"),
-                              onPressed: () {},
+                                    ),
+                                    alignment: AlignmentDirectional.center)
+                              ],
                             ),
-                          )
+                          ),
                         ],
-                      ))
+                      )),
+                  Align(
+                    alignment: AlignmentDirectional.center,
+                    child: FlatButton(
+                      color: Colors.transparent,
+                      child: Text("Forgot Password?"),
+                      onPressed: () {},
+                    ),
+                  )
                 ],
-              )),
+              ))
+            ],
+          )),
         ),
       ),
     );

@@ -43,6 +43,8 @@ class _Rounds extends State<Rounds> {
   List<bool> attend = List();
   List<bool> promote = List();
 
+  bool editmode = false;
+
   @override
   void initState() {
     super.initState();
@@ -64,28 +66,52 @@ class _Rounds extends State<Rounds> {
   List<String> round = new List();
   int count;
   bool loaded = false;
-  static const menuItems = <String>["Round 1", "Round 2", "Round 3", "Winners"];
+  static const menuItems = <String>['Round 1', 'Round 2', 'Round 3', 'Winners'];
 
-  final List<DropdownMenuItem<String>> _dropDownMenuItems =
-      menuItems.map((String value) => DropdownMenuItem<String>(
-            value: value,
-            child: Text(value),
-          )).toList();
+  final List<DropdownMenuItem<String>> _dropDownMenuItems = menuItems
+      .map(
+        (String value) => DropdownMenuItem<String>(
+              value: value,
+              child: Text(value),
+            ),
+      )
+      .toList();
 
-    String _btn1SelectedVal='one';
-    String _btn2SelectedVal;
-    String _btn3SelectedVal;
-    
+  String _btn1SelectedVal = 'Round 1';
+  String _btn2SelectedVal = '';
+  String _btn3SelectedVal = '';
+  String _btn4SelectedVal = '';
+
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         leading: BackButton(),
-        title: DropdownButton(
-            value:_btn1SelectedVal,
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(
+              Icons.edit,
+              color: Color.fromARGB(0xff, 0xff, 0xff, 0xff),
+            ),
+            onPressed: () {
+              setState(() {
+                if (editmode) {
+                  editmode = false;
+                } else
+                  editmode = true;
+              });
+            },
+          )
+        ],
+        title: DropdownButton<String>(
+            value: _btn1SelectedVal,
             items: this._dropDownMenuItems,
             onChanged: (String newValue) {
               setState(() {
-                _btn1SelectedVal=newValue;
+                _btn1SelectedVal = newValue;
+                //print(_btn1SelectedVal);
+                //print(_btn2SelectedVal);
+                //print(_btn3SelectedVal);
+                //print(_btn4SelectedVal);
               });
             }),
       ),
@@ -94,7 +120,36 @@ class _Rounds extends State<Rounds> {
             switch (i) {
               case 0:
                 showDialog(
-                    context: context, builder: (context) => optionDialog);
+                    context: context, builder: (context) => AlertDialog(
+                      title: const Text('Did these participants attended this round?'),
+                          content: Text('NOTICE: This action cannot be undone'),
+                          actions: <Widget>[
+                            FlatButton(
+                              child: Text('Cancel'),
+                              onPressed: () => Navigator.pop(context),
+                            ),
+                            FlatButton(
+                                child: Text('Confirm'), onPressed: () {}),
+                          ],
+                    ));
+                break;
+              case 1:
+                showDialog(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                          title: const Text(
+                              'Are you sure you want to promote these users?'),
+                          content: Text('NOTICE: This action cannot be undone'),
+                          actions: <Widget>[
+                            FlatButton(
+                              child: Text('Cancel'),
+                              onPressed: () => Navigator.pop(context),
+                            ),
+                            FlatButton(
+                                child: Text('Confirm'), onPressed: () {}),
+                          ],
+                        ));
+                break;
             }
           },
           items: <BottomNavigationBarItem>[
@@ -144,9 +199,11 @@ class _Rounds extends State<Rounds> {
                     CheckboxListTile(
                       value: inputs[index],
                       title: Text(names[index]),
-                      onChanged: (bool val) {
-                        ItemChange(val, index);
-                      },
+                      onChanged: editmode
+                          ? (bool val) {
+                              ItemChange(val, index);
+                            }
+                          : null,
                     ),
                   ],
                 ),
@@ -158,28 +215,13 @@ class _Rounds extends State<Rounds> {
     }
   }
 
-  SimpleDialog optionDialog = SimpleDialog(
-    children: <Widget>[
-      SimpleDialogOption(
-        child: Center(
-            child: Text(
-          "Edit",
-          style: TextStyle(
-            fontSize: 28.0,
-          ),
-        )),
-        onPressed: null,
-      ),
-      SimpleDialogOption(
-        child: Center(
-            child: Text(
-          "Confirm",
-          style: TextStyle(
-            fontSize: 28.0,
-          ),
-        )),
-        onPressed: null,
-      )
-    ],
-  );
+  
+
+  static editAttendance() {
+
+  }
+
+  static confirmAttendance() {
+    
+  }
 }
