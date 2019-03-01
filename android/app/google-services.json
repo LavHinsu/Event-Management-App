@@ -1,27 +1,58 @@
 {
   "project_info": {
-    "project_number": "138368487869",
-    "firebase_url": "https://udaanvolunteers.firebaseio.com",
-    "project_id": "udaanvolunteers",
-    "storage_bucket": "udaanvolunteers.appspot.com"
+    "project_number": "540869553300",
+    "firebase_url": "https://udaan2k19-ada49.firebaseio.com",
+    "project_id": "udaan2k19-ada49",
+    "storage_bucket": "udaan2k19-ada49.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:138368487869:android:249550050973c987",
+        "mobilesdk_app_id": "1:540869553300:android:c7748a4fbec03174",
+        "android_client_info": {
+          "package_name": "in.ac.bvmengineering.udaan2k19"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "540869553300-b5nb3tsodm3n0q82pj0gc8puo09ap524.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBmcA1iLqsDsX5fM6WVCPoHAZzUzZdvfO0"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:540869553300:android:249550050973c987",
         "android_client_info": {
           "package_name": "in.ac.bvmengineering.udaan2k19volunteers"
         }
       },
       "oauth_client": [
         {
-          "client_id": "138368487869-hi65smdq1fup2flv45k0ob5qmotpahgv.apps.googleusercontent.com",
+          "client_id": "540869553300-b5nb3tsodm3n0q82pj0gc8puo09ap524.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyBTtTugA1nAMY6TzomugJ0pIWO6w9ykN90"
+          "current_key": "AIzaSyBmcA1iLqsDsX5fM6WVCPoHAZzUzZdvfO0"
         }
       ],
       "services": {

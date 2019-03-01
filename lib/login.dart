@@ -1,11 +1,13 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'verifyotp.dart';
 
 import 'user.dart' as User;
 
 class AfterSplash extends StatefulWidget {
   @override
+  
   _AfterSplash createState() => new _AfterSplash();
 }
 
@@ -15,6 +17,7 @@ class _AfterSplash extends State<AfterSplash> {
   String usern;
   //var prefs=null;
 
+  
   String Username, Password;
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -30,32 +33,35 @@ class _AfterSplash extends State<AfterSplash> {
 
     */
     //refs=  await SharedPreferences.getInstance();
-    SharedPreferences.getInstance()
+   /* SharedPreferences.getInstance()
       ..then((prefs) {
         setState(() {
           this.prefs = prefs;
           uid = prefs.getString("user");
           usern = prefs.getString('username');
         });
-      });
+      });*/
+      
   }
 
   // new Future.delayed(const Duration(seconds: 2));
 
   void signIn() async {
     try {
-      user = await _auth.signInWithEmailAndPassword(
-          email: Username, password: Password);
+     //user = await _auth.signInWithEmailAndPassword(email: Username, password: Password);
     } catch (e) {
       print(e.toString());
     } finally {
-      if (user != null) {
-        User.username = Username;
-        User.user = user;
-        print('Succesfull');
-        prefs.setString("user", User.user.uid);
-        prefs.setString('username', User.username);
-        Navigator.pushReplacementNamed(context, "/afterlogin");
+      if (1!=0) {
+        //User.username = Username;
+        //User.user = user;
+        //print('Succesfull');
+        //prefs.setString("user", User.user.uid);
+        //prefs.setString('username', User.username);
+        //Navigator.pushReplacementNamed(context, "/afterlogin");
+       
+        Navigator.push(context,
+                    MaterialPageRoute(builder: (context)=>Verifyotp(username:Username)));
       } else {
         print('Unsuccessfull');
       }
@@ -90,9 +96,9 @@ class _AfterSplash extends State<AfterSplash> {
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 12.0),
                           child: TextField(
-                            keyboardType: TextInputType.emailAddress,
+                            keyboardType: TextInputType.phone,
                             decoration: InputDecoration.collapsed(
-                                hintText: "Email Address"),
+                                hintText: "Enter your phone number"),
                             onChanged: (String val) {
                               if (val != null) Username = val;
                             },
