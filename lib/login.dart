@@ -112,6 +112,7 @@ class _AfterSplash extends State<AfterSplash> {
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 12.0),
                           child: TextField(
+                            
                             obscureText: true,
                             decoration:
                                 InputDecoration.collapsed(hintText: "Password"),

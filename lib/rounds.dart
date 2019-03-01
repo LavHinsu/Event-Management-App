@@ -1,9 +1,7 @@
 import 'dart:convert';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
-
 import 'login.dart';
 import 'user.dart';
 //import 'package:http/http.dart';
@@ -49,9 +47,6 @@ class _Rounds extends State<Rounds> {
   void initState() {
     super.initState();
     //print(widget.eventid);
-    for (int i = 0; i < 20; i++) {
-      inputs.add(true);
-    }
     fetchrounds();
   }
 
@@ -107,6 +102,7 @@ class _Rounds extends State<Rounds> {
             items: this._dropDownMenuItems,
             onChanged: (String newValue) {
               setState(() {
+                 
                 _btn1SelectedVal = newValue;
                 //print(_btn1SelectedVal);
                 //print(_btn2SelectedVal);
@@ -120,8 +116,10 @@ class _Rounds extends State<Rounds> {
             switch (i) {
               case 0:
                 showDialog(
-                    context: context, builder: (context) => AlertDialog(
-                      title: const Text('Did these participants attended this round?'),
+                    context: context,
+                    builder: (context) => AlertDialog(
+                          title: const Text(
+                              'did these participants attended this round?'),
                           content: Text('NOTICE: This action cannot be undone'),
                           actions: <Widget>[
                             FlatButton(
@@ -131,7 +129,7 @@ class _Rounds extends State<Rounds> {
                             FlatButton(
                                 child: Text('Confirm'), onPressed: () {}),
                           ],
-                    ));
+                        ));
                 break;
               case 1:
                 showDialog(
@@ -182,6 +180,9 @@ class _Rounds extends State<Rounds> {
     }
     print(count);
     setState(() {
+      for (int i = 0; i < names.length; i++) {
+        inputs.add(false);
+      }
       loaded = true;
     });
   }
@@ -215,13 +216,9 @@ class _Rounds extends State<Rounds> {
     }
   }
 
-  
-
   static editAttendance() {
-
-  }
-
-  static confirmAttendance() {
     
   }
+
+  static confirmAttendance() {}
 }

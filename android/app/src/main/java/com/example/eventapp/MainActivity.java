@@ -1,4 +1,4 @@
-package com.example.eventapp;
+package in.ac.bvmengineering.udaan2k19volunteers;
 
 import android.os.Bundle;
 import io.flutter.app.FlutterActivity;
