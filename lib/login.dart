@@ -1,23 +1,24 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'verifyotp.dart';
 
 import 'user.dart' as User;
 
 class AfterSplash extends StatefulWidget {
   @override
-  
   _AfterSplash createState() => new _AfterSplash();
 }
 
 class _AfterSplash extends State<AfterSplash> {
   SharedPreferences prefs;
-  String uid;
-  String usern;
+  //String uid;
+  //String usern;
   //var prefs=null;
+  final myController = TextEditingController();
+  String phoneNo;
+  String verificationId;
+  String smsCode;
 
-  
   String Username, Password;
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -33,7 +34,7 @@ class _AfterSplash extends State<AfterSplash> {
 
     */
     //refs=  await SharedPreferences.getInstance();
-   /* SharedPreferences.getInstance()
+    /* SharedPreferences.getInstance()
       ..then((prefs) {
         setState(() {
           this.prefs = prefs;
@@ -41,30 +42,40 @@ class _AfterSplash extends State<AfterSplash> {
           usern = prefs.getString('username');
         });
       });*/
-      
   }
 
   // new Future.delayed(const Duration(seconds: 2));
 
   void signIn() async {
     try {
-     //user = await _auth.signInWithEmailAndPassword(email: Username, password: Password);
+      final PhoneCodeSent smsCodeSent = (String verId, [int forceCodeResend]) {
+        this.verificationId = verId;
+        print('code sent');
+      };
+      final PhoneVerificationCompleted verifiedSuccess = (FirebaseUser user) {
+        print('verified');
+        Navigator.pushReplacementNamed(context, "/afterlogin");
+        
+      };
+      final PhoneVerificationFailed veriFailed = (AuthException exception) {
+        print('${exception.message}');
+      };
+      await FirebaseAuth.instance.verifyPhoneNumber(
+          phoneNumber: this.phoneNo,
+          forceResendingToken: 1,
+          codeSent: smsCodeSent,
+          timeout: const Duration(seconds: 20),
+          verificationCompleted: verifiedSuccess,
+          verificationFailed: veriFailed);
     } catch (e) {
       print(e.toString());
     } finally {
-      if (1!=0) {
-        //User.username = Username;
-        //User.user = user;
-        //print('Succesfull');
-        //prefs.setString("user", User.user.uid);
-        //prefs.setString('username', User.username);
-        //Navigator.pushReplacementNamed(context, "/afterlogin");
-       
-        Navigator.push(context,
-                    MaterialPageRoute(builder: (context)=>Verifyotp(username:Username)));
-      } else {
-        print('Unsuccessfull');
-      }
+      User.username = phoneNo;
+      User.user = user;
+      print('Succesfull');
+      prefs.setString("user", User.user.uid);
+      prefs.setString('username', User.username);
+
     }
   }
 
@@ -100,7 +111,7 @@ class _AfterSplash extends State<AfterSplash> {
                             decoration: InputDecoration.collapsed(
                                 hintText: "Enter your phone number"),
                             onChanged: (String val) {
-                              if (val != null) Username = val;
+                              if (val != null) phoneNo = "+91" + val;
                             },
                           ),
                         ),
@@ -118,7 +129,6 @@ class _AfterSplash extends State<AfterSplash> {
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 12.0),
                           child: TextField(
-                            
                             obscureText: true,
                             decoration:
                                 InputDecoration.collapsed(hintText: "Password"),
@@ -137,7 +147,35 @@ class _AfterSplash extends State<AfterSplash> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
                           GestureDetector(
-                            onTap: signIn,
+                            onTap: 
+                                () {
+                              showDialog(
+                                  context: context,
+                                  builder: (context) => AlertDialog(
+                                        title: TextField(
+                                          controller: myController,
+                                          autofocus: true,
+                                          onChanged: (String val) {
+                                            if (val != null) {
+                                              smsCode = val;
+                                            }
+                                          },
+                                          decoration: InputDecoration(
+                                              hintText:
+                                                  'Enter OTP sent to your device'),
+                                        ),
+                                        actions: <Widget>[
+                                          FlatButton(
+                                            child: Text('Send OTP'),
+                                            onPressed: signIn,
+                                          ),
+                                          FlatButton(
+                                            child: Text('Confirm'),
+                                            onPressed: (){},
+                                          )
+                                        ],
+                                      ));
+                            },
                             child: Stack(
                               alignment: AlignmentDirectional.center,
                               children: <Widget>[

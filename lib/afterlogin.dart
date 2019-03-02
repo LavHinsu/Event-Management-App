@@ -7,6 +7,7 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'login.dart';
 import 'rounds.dart';
 import 'user.dart';
+
 //import 'package:http/http.dart';
 
 
@@ -50,7 +51,7 @@ class _AfterLogin extends State<AfterLogin> {
         child: ListView(
           children: <Widget>[
             UserAccountsDrawerHeader(
-                accountName: Text(username), accountEmail: null),
+                accountName: Text(username.toString()), accountEmail: null),
             ListTile(
               leading: Icon(Icons.home),
               title: Text("Home"),
