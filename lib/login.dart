@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
+import 'afterlogin.dart';
 import 'user.dart' as User;
 
 class AfterSplash extends StatefulWidget {
@@ -11,9 +11,9 @@ class AfterSplash extends StatefulWidget {
 
 class _AfterSplash extends State<AfterSplash> {
   SharedPreferences prefs;
-  //String uid;
-  //String usern;
-  //var prefs=null;
+  String uid;
+  String usern;
+
   final myController = TextEditingController();
   String phoneNo;
   String verificationId;
@@ -24,24 +24,14 @@ class _AfterSplash extends State<AfterSplash> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   static FirebaseUser user;
   void initState() {
-    /*prefs= await SharedPreferences.getInstance();
-      if(prefs.getBool("isloggedin",false))
-     {
-      Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => (AfterLogin())));
-     }
-     else{}
-
-    */
-    //refs=  await SharedPreferences.getInstance();
-    /* SharedPreferences.getInstance()
+    SharedPreferences.getInstance()
       ..then((prefs) {
         setState(() {
           this.prefs = prefs;
-          uid = prefs.getString("user");
-          usern = prefs.getString('username');
+        uid=prefs.getString("user");
+            usern=prefs.getString('username');
         });
-      });*/
+      });
   }
 
   // new Future.delayed(const Duration(seconds: 2));
@@ -54,7 +44,11 @@ class _AfterSplash extends State<AfterSplash> {
       };
       final PhoneVerificationCompleted verifiedSuccess = (FirebaseUser user) {
         print('verified');
-        Navigator.pushReplacementNamed(context, "/afterlogin");
+       prefs.setString('user', FirebaseAuth.instance.currentUser().toString());
+       prefs.setString("username", User.username);
+       print(prefs.getString('user'));
+       print(prefs.getString("username"));
+        Navigator.pushReplacement(context,MaterialPageRoute(builder: (context)=>AfterLogin()));
       };
       final PhoneVerificationFailed veriFailed = (AuthException exception) {
         print('${exception.message}');

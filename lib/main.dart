@@ -11,7 +11,8 @@ void main() {
     debugShowCheckedModeBanner: false,
     home: new MyApp(),
     routes: {
-      '/afterlogin': (context) => AfterLogin(),},
+      '/afterlogin': (context) => AfterLogin(),
+    },
   ));
 }
 
@@ -23,36 +24,33 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   SharedPreferences prefs;
   String uid;
-  bool loggedin=false;
+  bool loggedin = false;
 
   @override
-  void initState(){
+  void initState() {
     super.initState();
-    SharedPreferences.getInstance()..then((prefs){
-      setState(() {
-        this.prefs=prefs;
-        uid=prefs.getString("user");
-        userdart.username=prefs.getString('username');
-        if(uid!=null) {
-          print("loggedin");
-          print(uid);
-          loggedin=true;
-        }
-        else{
-          //do nothing here
-        }
+    SharedPreferences.getInstance()
+      ..then((prefs) {
+        setState(() {
+          this.prefs = prefs;
+          uid = prefs.getString("user");
+          userdart.username = prefs.getString('username');
+              
+          if (userdart.username != null) {
+            print("loggedin");
+            print(uid);
+            loggedin = true;
+          } else {}
+        });
       });
-    });
   }
 
-  
   @override
   Widget build(BuildContext context) {
     return Center(
       child: SplashScreen(
         seconds: 5,
-        navigateAfterSeconds: loggedin ? new AfterLogin() : AfterSplash(),
-
+        navigateAfterSeconds: loggedin ? AfterLogin() : AfterSplash(),
         image: Image(image: AssetImage("assets/images/udaan_logo.png")),
         backgroundColor: Colors.white,
         photoSize: 100,
