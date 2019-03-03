@@ -44,7 +44,7 @@ class _AfterSplash extends State<AfterSplash> {
       };
       final PhoneVerificationCompleted verifiedSuccess = (FirebaseUser user) {
         print('verified');
-       prefs.setString('user', FirebaseAuth.instance.currentUser().toString());
+       prefs.setString('user',user.uid);
        prefs.setString("username", User.username);
        print(prefs.getString('user'));
        print(prefs.getString("username"));
