@@ -55,7 +55,6 @@ class _AfterSplash extends State<AfterSplash> {
       final PhoneVerificationCompleted verifiedSuccess = (FirebaseUser user) {
         print('verified');
         Navigator.pushReplacementNamed(context, "/afterlogin");
-        
       };
       final PhoneVerificationFailed veriFailed = (AuthException exception) {
         print('${exception.message}');
@@ -75,7 +74,6 @@ class _AfterSplash extends State<AfterSplash> {
       print('Succesfull');
       prefs.setString("user", User.user.uid);
       prefs.setString('username', User.username);
-
     }
   }
 
@@ -147,8 +145,7 @@ class _AfterSplash extends State<AfterSplash> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
                           GestureDetector(
-                            onTap: 
-                                () {
+                            onTap: () {
                               showDialog(
                                   context: context,
                                   builder: (context) => AlertDialog(
@@ -171,7 +168,20 @@ class _AfterSplash extends State<AfterSplash> {
                                           ),
                                           FlatButton(
                                             child: Text('Confirm'),
-                                            onPressed: (){},
+                                            onPressed: () {
+                                              FirebaseAuth.instance
+                                                  .signInWithPhoneNumber(
+                                                      verificationId:
+                                                          verificationId,
+                                                      smsCode: smsCode)
+                                                  .then((user) {
+                                                Navigator.of(context)
+                                                    .pushReplacementNamed(
+                                                        '/homepage');
+                                              }).catchError((e) {
+                                                print(e);
+                                              });
+                                            },
                                           )
                                         ],
                                       ));
