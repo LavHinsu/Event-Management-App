@@ -48,7 +48,6 @@ class _Rounds extends State<Rounds> {
   List<String> round = new List();
   int count;
   bool loaded = false;
-  static const menuItems = <String>['Round 1', 'Round 2', 'Round 3', 'Winners'];
 
   Widget build(BuildContext context) {
     return Scaffold(
