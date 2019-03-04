@@ -21,7 +21,7 @@ class _AfterSplash extends State<AfterSplash> {
 
   String password;
 
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+
   static FirebaseUser user;
   void initState() {
     SharedPreferences.getInstance()

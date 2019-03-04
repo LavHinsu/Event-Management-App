@@ -2,8 +2,7 @@ import 'dart:convert';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
-import 'login.dart';
-import 'user.dart';
+
 import 'Data.dart';
 //import 'package:http/http.dart';
 
@@ -37,7 +36,7 @@ class _Rounds extends State<Rounds> {
     fetchrounds();
   }
 
-  void ItemChange(bool val, int index) {
+  void itemChange(bool val, int index) {
     setState(() {
       inputs[index] = val;
     });
@@ -165,7 +164,7 @@ class _Rounds extends State<Rounds> {
                       title: Text(phone[index]),
                       onChanged: editmode
                           ? (bool val) {
-                              ItemChange(val, index);
+                              itemChange(val, index);
                             }
                           : null,
                     ),
