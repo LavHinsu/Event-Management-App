@@ -190,7 +190,7 @@ class _Rounds extends State<Rounds> {
   Widget _rounds() {
     if (loaded) {
       return ListView.builder(
-          itemCount: names.length,
+          itemCount: phone.length,
           itemBuilder: (context, index) {
             return Card(
               child: Container(
@@ -199,7 +199,7 @@ class _Rounds extends State<Rounds> {
                   children: <Widget>[
                     CheckboxListTile(
                       value: inputs[index],
-                      title: Text(names[index]),
+                      title: Text(phone[index]),
                       onChanged: editmode
                           ? (bool val) {
                               ItemChange(val, index);

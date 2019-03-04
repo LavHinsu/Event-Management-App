@@ -3,18 +3,20 @@ import 'dart:convert';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
+import 'dart:async' show Future;
+import 'Data.dart';
 
 import 'login.dart';
 import 'rounds.dart';
 import 'user.dart';
 
-//import 'package:http/http.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+//import 'package:http/http.dart';
 
 Future<String> getFileData(String path) async {
   return await rootBundle.loadString(path);
 }
-
 
 //import 'user.dart' as user;
 
@@ -26,11 +28,15 @@ class AfterLogin extends StatefulWidget {
 class _AfterLogin extends State<AfterLogin> {
   final FirebaseAuth auth = FirebaseAuth.instance;
 
+  SharedPreferences prefs;
   // List<Widget> eventChildren = List();
   //List list = List();
+  List<dynamic> managers = new List();
   List<String> ids = new List();
   List<String> names = new List();
   List<String> nop = new List();
+  List<dynamic> managernames = new List();
+
   var id;
 
   bool loaded = false;
@@ -40,7 +46,7 @@ class _AfterLogin extends State<AfterLogin> {
   @override
   void initState() {
     super.initState();
-    
+
     fetch();
   }
 
@@ -81,12 +87,19 @@ class _AfterLogin extends State<AfterLogin> {
 
   void fetch() async {
     String json = await getFileData("assets/events.json");
-    List events = jsonDecode(json);
-    events.forEach((event) {
-      ids.add(event["_id"]);
-      names.add(event["eventName"]);
+    final events = jsonDecode(json);
+    EventsList event = new EventsList.fromJson(events);
+
+    print(username);
+    print(event.events.length);
+    print(event.events[1].eventname.toString());
+
+    event.events.forEach((event) {
+      ids.add(event.id);
+      names.add(event.eventname);
     });
-    print(ids + names);
+
+    //print(ids + names);
     setState(() {
       loaded = true;
     });
@@ -105,7 +118,10 @@ class _AfterLogin extends State<AfterLogin> {
               return GestureDetector(
                 onTap: () {
                   print(index);
-                  Navigator.push(context,MaterialPageRoute(builder: (context)=>Rounds(eventid:ids[index])));
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => Rounds(eventid: ids[index])));
                   //final snackBar = SnackBar(content: Text("Tap on $index"));
                   //Scaffold.of(context).showSnackBar(snackBar);
                 },
@@ -115,7 +131,7 @@ class _AfterLogin extends State<AfterLogin> {
                     child: Padding(
                       padding: const EdgeInsets.all(30.0),
                       child:
-                      Text(names[index], style: TextStyle(fontSize: 32.0)),
+                          Text(names[index], style: TextStyle(fontSize: 32.0)),
                     ),
                   ),
                 ),
