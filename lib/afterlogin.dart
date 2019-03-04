@@ -12,13 +12,9 @@ import 'user.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
-//import 'package:http/http.dart';
-
 Future<String> getFileData(String path) async {
   return await rootBundle.loadString(path);
 }
-
-//import 'user.dart' as user;
 
 class AfterLogin extends StatefulWidget {
   @override
@@ -29,16 +25,8 @@ class _AfterLogin extends State<AfterLogin> {
   final FirebaseAuth auth = FirebaseAuth.instance;
 
   SharedPreferences prefs;
-  // List<Widget> eventChildren = List();
-  //List list = List();
-  List<dynamic> managers = new List();
   List<String> ids = new List();
   List<String> names = new List();
-  List<String> nop = new List();
-  List<dynamic> managernames = new List();
-
-  var id;
-
   bool loaded = false;
 
   final GlobalKey<ScaffoldState> key = GlobalKey<ScaffoldState>();
@@ -46,7 +34,13 @@ class _AfterLogin extends State<AfterLogin> {
   @override
   void initState() {
     super.initState();
-
+    SharedPreferences.getInstance()
+      ..then((prefs) {
+        setState(() {
+          this.prefs = prefs;
+          username = prefs.getString('username');
+        });
+      });
     fetch();
   }
 
@@ -90,23 +84,24 @@ class _AfterLogin extends State<AfterLogin> {
     final events = jsonDecode(json);
     EventsList event = new EventsList.fromJson(events);
 
-    print(username);
-    print(event.events.length);
-    print(event.events[1].eventname.toString());
+    List<String> managerphone =
+        username.split("+91"); //rempove the +91 from the username
 
-    event.events.forEach((event) {
-      ids.add(event.id);
-      names.add(event.eventname);
-    });
+    print("phone no of manager:" + managerphone[1]);
+    for (int i = 0; i < events.length; i++) {
+      for (int j = 0; j < event.events[i].managerdata.length; j++) {
+        if (event.events[i].managerdata[j].phone ==
+            managerphone[1].toString()) {
+          ids.add(event.events[i].id);
+          names.add(event.events[i].eventname);
+        }
+      }
+    }
+    names.add('you are not a manager, contact the devs');
 
-    //print(ids + names);
     setState(() {
       loaded = true;
     });
-
-    //  print(ids);
-    //print(names);
-    //print(nop);
   }
 
   Widget _events() {

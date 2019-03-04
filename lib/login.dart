@@ -19,7 +19,7 @@ class _AfterSplash extends State<AfterSplash> {
   String verificationId;
   String smsCode;
 
-  String Username, Password;
+  String password;
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
   static FirebaseUser user;
@@ -39,7 +39,7 @@ class _AfterSplash extends State<AfterSplash> {
   void signIn() async {
     try {
       final PhoneCodeSent smsCodeSent = (String verId, [int forceCodeResend]) {
-        this.verificationId = verId;
+        verificationId = verId;
         print('code sent');
       };
       final PhoneVerificationCompleted verifiedSuccess = (FirebaseUser user) {
@@ -48,7 +48,7 @@ class _AfterSplash extends State<AfterSplash> {
        prefs.setString("username", User.username);
        print(prefs.getString('user'));
        print(prefs.getString("username"));
-        Navigator.pushReplacement(context,MaterialPageRoute(builder: (context)=>AfterLogin()));
+       Navigator.pushReplacement(context,MaterialPageRoute(builder: (context)=>AfterLogin()));
       };
       final PhoneVerificationFailed veriFailed = (AuthException exception) {
         print('${exception.message}');
@@ -125,7 +125,7 @@ class _AfterSplash extends State<AfterSplash> {
                             decoration:
                                 InputDecoration.collapsed(hintText: "Password"),
                             onChanged: (String val) {
-                              if (val != null) Password = val;
+                              if (val != null) password = val;
                             },
                           ),
                         ),
@@ -171,7 +171,7 @@ class _AfterSplash extends State<AfterSplash> {
                                                   .then((user) {
                                                 Navigator.of(context)
                                                     .pushReplacementNamed(
-                                                        '/homepage');
+                                                        '/afterlogin');
                                               }).catchError((e) {
                                                 print(e);
                                               });
