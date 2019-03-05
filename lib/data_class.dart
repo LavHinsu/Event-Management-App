@@ -1,3 +1,8 @@
+import 'dart:io';
+import 'package:json_annotation/json_annotation.dart';
+part 'data_class.g.dart';
+
+@JsonSerializable()
 class EventsList {
   final List<Event> events;
 
@@ -12,7 +17,7 @@ class EventsList {
     return new EventsList(events: events);
   }
 }
-
+@JsonSerializable()
 class Event {
   final String id;
   final String eventname;
@@ -44,7 +49,7 @@ class Event {
         managerdata: managerdata);
   }
 }
-
+@JsonSerializable()
 class Manager {
   final String name;
   final String phone;
