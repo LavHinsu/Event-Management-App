@@ -14,8 +14,9 @@ Future<String> getFileData(String path) async {
 
 class RoundsPage extends StatefulWidget {
   final String eventid;
+  String roundno;
 
-  RoundsPage({Key key, @required this.eventid}) : super(key: key);
+  RoundsPage({Key key, @required this.eventid,this.roundno}) : super(key: key);
 
   @override
   RoundsPageState createState() => new RoundsPageState();
@@ -72,7 +73,7 @@ class RoundsPageState extends State<RoundsPage> {
             },
           )
         ],
-        title: Text('Participants'),
+        title: Text('Participants of round: '+widget.roundno),
       ),
       bottomNavigationBar: BottomNavigationBar(
           onTap: (i) {
@@ -155,6 +156,8 @@ class RoundsPageState extends State<RoundsPage> {
 
   Widget _rounds() {
     if (loaded) {
+      if(int.parse(widget.roundno)==1)
+      {
       return ListView.builder(
           itemCount: phone.length,
           itemBuilder: (context, index) {
@@ -185,6 +188,7 @@ class RoundsPageState extends State<RoundsPage> {
               ),
             );
           });
+      }
     } else {
       return CircularProgressIndicator();
     }

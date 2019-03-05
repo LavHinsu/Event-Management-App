@@ -84,15 +84,12 @@ class MainPageState extends State<MainPage> {
     String json = await getFileData("assets/events.json");
     final events = jsonDecode(json);
     EventsList event = new EventsList.fromJson(events);
+    print(username);
+    var managerphone=username.split('+91');
 
-    List<String> managerphone =
-    username.split("+91"); //rempove the +91 from the username
-
-    print("phone no of manager:" + managerphone[1]);
     for (int i = 0; i < events.length; i++) {
       for (int j = 0; j < event.events[i].managerdata.length; j++) {
-        if (event.events[i].managerdata[j].phone ==
-            managerphone[1].toString()) {
+        if (event.events[i].managerdata[j].phone == managerphone[1]) {
           ids.add(event.events[i].id);
           names.add(event.events[i].eventname);
         }
@@ -115,10 +112,14 @@ class MainPageState extends State<MainPage> {
                 onTap: () {
                   print(index);
                   Navigator.push(
-                      context,MaterialPageRoute(builder: (context)=>RoundList(eventid: ids[index],)));
-                      //MaterialPageRoute(
-                        //  builder: (context) =>
-                          //    RoundsPage(eventid: ids[index])));
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => RoundList(
+                                eventid: ids[index],
+                              )));
+                  //MaterialPageRoute(
+                  //  builder: (context) =>
+                  //    RoundsPage(eventid: ids[index])));
                   //final snackBar = SnackBar(content: Text("Tap on $index"));
                   //Scaffold.of(context).showSnackBar(snackBar);
                 },
@@ -128,7 +129,7 @@ class MainPageState extends State<MainPage> {
                     child: Padding(
                       padding: const EdgeInsets.all(30.0),
                       child:
-                      Text(names[index], style: TextStyle(fontSize: 32.0)),
+                          Text(names[index], style: TextStyle(fontSize: 32.0)),
                     ),
                   ),
                 ),
