@@ -16,22 +16,31 @@ class EventsList {
 class Event {
   final String id;
   final String eventname;
+  final List<String> rounds;
   final List<String> participantdata;
   final List<Manager> managerdata;
 
-  Event({this.id, this.eventname, this.managerdata, this.participantdata});
+  Event(
+      {this.id,
+      this.eventname,
+      this.managerdata,
+      this.participantdata,
+      this.rounds});
 
   factory Event.fromJson(Map<String, dynamic> json) {
     var participantlist = json['participants'];
+    var rounds = json['rounds'];
     var managerlist = json['managers'] as List;
-    List<String> participantdata= new List<String>.from(participantlist);
+    List<String> participantdata = new List<String>.from(participantlist);
+    List<String> rounddata = new List<String>.from(rounds);
     List<Manager> managerdata =
-    managerlist.map((i) => Manager.fromJson(i)).toList();
+        managerlist.map((i) => Manager.fromJson(i)).toList();
 
     return new Event(
         id: json['_id'],
         eventname: json['eventName'],
         participantdata: participantdata,
+        rounds: rounddata,
         managerdata: managerdata);
   }
 }
@@ -43,7 +52,7 @@ class Manager {
   Manager({this.phone, this.name});
 
   factory Manager.fromJson(Map<String, dynamic> json) {
-   // print(json['name']);
+    // print(json['name']);
     //print(json['phone']);
     return new Manager(phone: json['phone'], name: json['name']);
   }

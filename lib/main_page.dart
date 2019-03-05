@@ -11,6 +11,8 @@ import 'login_page.dart';
 import 'rounds_page.dart';
 import 'user.dart';
 
+import 'roundslist_page.dart';
+
 Future<String> getFileData(String path) async {
   return await rootBundle.loadString(path);
 }
@@ -113,10 +115,10 @@ class MainPageState extends State<MainPage> {
                 onTap: () {
                   print(index);
                   Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) =>
-                              RoundsPage(eventid: ids[index])));
+                      context,MaterialPageRoute(builder: (context)=>RoundList(eventid: ids[index],)));
+                      //MaterialPageRoute(
+                        //  builder: (context) =>
+                          //    RoundsPage(eventid: ids[index])));
                   //final snackBar = SnackBar(content: Text("Tap on $index"));
                   //Scaffold.of(context).showSnackBar(snackBar);
                 },
