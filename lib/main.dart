@@ -4,6 +4,7 @@ import 'package:splashscreen/splashscreen.dart';
 
 import 'login_page.dart';
 import 'main_page.dart';
+import 'msg_page.dart';
 import 'user.dart' as userdart;
 
 void main() {
@@ -12,6 +13,7 @@ void main() {
     home: new MyApp(),
     routes: {
       '/afterlogin': (context) => MainPage(),
+      '/msg': (context) => MsgPage()
     },
   ));
 }
@@ -35,7 +37,7 @@ class _MyAppState extends State<MyApp> {
           this.prefs = prefs;
           uid = prefs.getString("uid");
           userdart.username = prefs.getString('username');
-              
+
           if (userdart.username != null) {
             print("loggedin");
             print(uid);
