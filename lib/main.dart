@@ -33,7 +33,7 @@ class _MyAppState extends State<MyApp> {
       ..then((prefs) {
         setState(() {
           this.prefs = prefs;
-          uid = prefs.getString("user");
+          uid = prefs.getString("uid");
           userdart.username = prefs.getString('username');
               
           if (userdart.username != null) {

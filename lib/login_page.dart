@@ -49,7 +49,8 @@ class LoginPageState extends State<LoginPage> {
     var response = await http.post(Uri.encodeFull(url),
         body: {"username": phoneNo, "password": password},
         headers: {"Accept": "application/json"});
-    Map<String, String> body = json.decode(response.body);
+    print(response.body);
+    var body = json.decode(response.body);
     if (body.containsKey("token")) {
       prefs.setString("token", body["token"]);
       firebaseSigIn();
@@ -99,9 +100,11 @@ class LoginPageState extends State<LoginPage> {
       };
       final PhoneVerificationCompleted verifiedSuccess = (FirebaseUser user) {
         print('verified');
-        prefs.setString('user', user.uid);
-        prefs.setString("username", User.username);
-        print(prefs.getString('user'));
+        User.user = user;
+        User.username = phoneNo;
+        prefs.setString('uid', user.uid);
+        prefs.setString("username", phoneNo);
+        print(prefs.getString('uid'));
         print(prefs.getString("username"));
         Navigator.pushReplacement(
             context, MaterialPageRoute(builder: (context) => MainPage()));
@@ -118,12 +121,6 @@ class LoginPageState extends State<LoginPage> {
           verificationFailed: veriFailed);
     } catch (e) {
       print(e.toString());
-    } finally {
-      User.username = phoneNo;
-      User.user = user;
-      print('Succesfull');
-      prefs.setString("user", User.user.uid);
-      prefs.setString('username', User.username);
     }
   }
 
