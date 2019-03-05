@@ -81,35 +81,35 @@ class RoundsPageState extends State<RoundsPage> {
                 showDialog(
                     context: context,
                     builder: (context) => AlertDialog(
-                      title: const Text(
-                          'did these participants attended this round?'),
-                      content: Text('NOTICE: This action cannot be undone'),
-                      actions: <Widget>[
-                        FlatButton(
-                          child: Text('Cancel'),
-                          onPressed: () => Navigator.pop(context),
-                        ),
-                        FlatButton(
-                            child: Text('Confirm'), onPressed: () {}),
-                      ],
-                    ));
+                          title: const Text(
+                              'did these participants attended this round?'),
+                          content: Text('NOTICE: This action cannot be undone'),
+                          actions: <Widget>[
+                            FlatButton(
+                              child: Text('Cancel'),
+                              onPressed: () => Navigator.pop(context),
+                            ),
+                            FlatButton(
+                                child: Text('Confirm'), onPressed: () {}),
+                          ],
+                        ));
                 break;
               case 1:
                 showDialog(
                     context: context,
                     builder: (context) => AlertDialog(
-                      title: const Text(
-                          'Are you sure you want to promote these users?'),
-                      content: Text('NOTICE: This action cannot be undone'),
-                      actions: <Widget>[
-                        FlatButton(
-                          child: Text('Cancel'),
-                          onPressed: () => Navigator.pop(context),
-                        ),
-                        FlatButton(
-                            child: Text('Confirm'), onPressed: () {}),
-                      ],
-                    ));
+                          title: const Text(
+                              'Are you sure you want to promote these users?'),
+                          content: Text('NOTICE: This action cannot be undone'),
+                          actions: <Widget>[
+                            FlatButton(
+                              child: Text('Cancel'),
+                              onPressed: () => Navigator.pop(context),
+                            ),
+                            FlatButton(
+                                child: Text('Confirm'), onPressed: () {}),
+                          ],
+                        ));
                 break;
             }
           },
@@ -135,8 +135,8 @@ class RoundsPageState extends State<RoundsPage> {
     for (int i = 0; i < events.length; i++) {
       {
         if (event.events[i].id.toString() == widget.eventid) {
-          events[i]["participants"].forEach((participant) {
-            phone.add(event.events[i].participantdata[i].phone);
+          event.events[i].participantdata.forEach((participant) {
+            phone.add(participant);
             attend.add(false);
             promote.add(false);
           });
@@ -163,13 +163,21 @@ class RoundsPageState extends State<RoundsPage> {
                 padding: EdgeInsets.all(10.0),
                 child: Column(
                   children: <Widget>[
+                    
                     CheckboxListTile(
+                      
                       value: inputs[index],
-                      title: Text(phone[index]),
+                      title: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Text('Participant name'),
+                          Text(phone[index])
+                        ],
+                      ),
                       onChanged: editmode
                           ? (bool val) {
-                        itemChange(val, index);
-                      }
+                              itemChange(val, index);
+                            }
                           : null,
                     ),
                   ],
