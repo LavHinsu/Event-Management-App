@@ -1,42 +1,53 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'afterlogin.dart';
+
+import 'main_page.dart';
 import 'user.dart' as User;
 
-class AfterSplash extends StatefulWidget {
+class LoginPage extends StatefulWidget {
   @override
-  _AfterSplash createState() => new _AfterSplash();
+  LoginPageState createState() => new LoginPageState();
 }
 
-class _AfterSplash extends State<AfterSplash> {
+class LoginPageState extends State<LoginPage> {
   SharedPreferences prefs;
   String uid;
-  String usern;
+  String username;
 
   final myController = TextEditingController();
   String phoneNo;
   String verificationId;
   String smsCode;
-
   String password;
-
 
   static FirebaseUser user;
   void initState() {
+    super.initState();
     SharedPreferences.getInstance()
       ..then((prefs) {
         setState(() {
           this.prefs = prefs;
-        uid=prefs.getString("user");
-            usern=prefs.getString('username');
+          uid = prefs.getString("user");
+          username = prefs.getString('username');
         });
       });
   }
 
-  // new Future.delayed(const Duration(seconds: 2));
+  @override
+  void dispose() {
+    myController.dispose();
+    super.dispose();
+  } // new Future.delayed(const Duration(seconds: 2));
 
-  void signIn() async {
+  void sigIn() async {
+    var url = "https://udaan19-events-api.herokuapp.com/users/login";
+    var response = await http.post(
+        url, body: {"username": username, "password": password});
+  }
+
+  void firebaseSigIn() async {
     try {
       final PhoneCodeSent smsCodeSent = (String verId, [int forceCodeResend]) {
         verificationId = verId;
@@ -44,11 +55,12 @@ class _AfterSplash extends State<AfterSplash> {
       };
       final PhoneVerificationCompleted verifiedSuccess = (FirebaseUser user) {
         print('verified');
-       prefs.setString('user',user.uid);
-       prefs.setString("username", User.username);
-       print(prefs.getString('user'));
-       print(prefs.getString("username"));
-       Navigator.pushReplacement(context,MaterialPageRoute(builder: (context)=>AfterLogin()));
+        prefs.setString('user', user.uid);
+        prefs.setString("username", User.username);
+        print(prefs.getString('user'));
+        print(prefs.getString("username"));
+        Navigator.pushReplacement(
+            context, MaterialPageRoute(builder: (context) => MainPage()));
       };
       final PhoneVerificationFailed veriFailed = (AuthException exception) {
         print('${exception.message}');
@@ -158,7 +170,7 @@ class _AfterSplash extends State<AfterSplash> {
                                         actions: <Widget>[
                                           FlatButton(
                                             child: Text('Send OTP'),
-                                            onPressed: signIn,
+                                            onPressed: firebaseSigIn,
                                           ),
                                           FlatButton(
                                             child: Text('Confirm'),

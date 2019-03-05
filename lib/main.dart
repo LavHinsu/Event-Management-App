@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:splashscreen/splashscreen.dart';
 
-import 'afterlogin.dart';
-import 'login.dart';
+import 'login_page.dart';
+import 'main_page.dart';
 import 'user.dart' as userdart;
 
 void main() {
@@ -11,7 +11,7 @@ void main() {
     debugShowCheckedModeBanner: false,
     home: new MyApp(),
     routes: {
-      '/afterlogin': (context) => AfterLogin(),
+      '/afterlogin': (context) => MainPage(),
     },
   ));
 }
@@ -50,7 +50,7 @@ class _MyAppState extends State<MyApp> {
     return Center(
       child: SplashScreen(
         seconds: 5,
-        navigateAfterSeconds: loggedin ? AfterLogin() : AfterSplash(),
+        navigateAfterSeconds: loggedin ? MainPage() : LoginPage(),
         image: Image(image: AssetImage("assets/images/udaan_logo.png")),
         backgroundColor: Colors.white,
         photoSize: 100,

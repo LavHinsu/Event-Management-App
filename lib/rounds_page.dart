@@ -1,23 +1,27 @@
+import 'dart:async';
 import 'dart:convert';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 
-import 'Data.dart';
+import 'data_class.dart';
 //import 'package:http/http.dart';
 
 Future<String> getFileData(String path) async {
   return await rootBundle.loadString(path);
 }
 
-class Rounds extends StatefulWidget {
+class RoundsPage extends StatefulWidget {
   final String eventid;
-  Rounds({Key key, @required this.eventid}) : super(key: key);
+
+  RoundsPage({Key key, @required this.eventid}) : super(key: key);
+
   @override
-  _Rounds createState() => new _Rounds();
+  RoundsPageState createState() => new RoundsPageState();
 }
 
-class _Rounds extends State<Rounds> {
+class RoundsPageState extends State<RoundsPage> {
   int currentRound = 0;
   List rounds = List();
   var currentList;
@@ -33,7 +37,7 @@ class _Rounds extends State<Rounds> {
   void initState() {
     super.initState();
     //print(widget.eventid);
-    fetchrounds();
+    fetchRounds();
   }
 
   void itemChange(bool val, int index) {
@@ -77,35 +81,35 @@ class _Rounds extends State<Rounds> {
                 showDialog(
                     context: context,
                     builder: (context) => AlertDialog(
-                          title: const Text(
-                              'did these participants attended this round?'),
-                          content: Text('NOTICE: This action cannot be undone'),
-                          actions: <Widget>[
-                            FlatButton(
-                              child: Text('Cancel'),
-                              onPressed: () => Navigator.pop(context),
-                            ),
-                            FlatButton(
-                                child: Text('Confirm'), onPressed: () {}),
-                          ],
-                        ));
+                      title: const Text(
+                          'did these participants attended this round?'),
+                      content: Text('NOTICE: This action cannot be undone'),
+                      actions: <Widget>[
+                        FlatButton(
+                          child: Text('Cancel'),
+                          onPressed: () => Navigator.pop(context),
+                        ),
+                        FlatButton(
+                            child: Text('Confirm'), onPressed: () {}),
+                      ],
+                    ));
                 break;
               case 1:
                 showDialog(
                     context: context,
                     builder: (context) => AlertDialog(
-                          title: const Text(
-                              'Are you sure you want to promote these users?'),
-                          content: Text('NOTICE: This action cannot be undone'),
-                          actions: <Widget>[
-                            FlatButton(
-                              child: Text('Cancel'),
-                              onPressed: () => Navigator.pop(context),
-                            ),
-                            FlatButton(
-                                child: Text('Confirm'), onPressed: () {}),
-                          ],
-                        ));
+                      title: const Text(
+                          'Are you sure you want to promote these users?'),
+                      content: Text('NOTICE: This action cannot be undone'),
+                      actions: <Widget>[
+                        FlatButton(
+                          child: Text('Cancel'),
+                          onPressed: () => Navigator.pop(context),
+                        ),
+                        FlatButton(
+                            child: Text('Confirm'), onPressed: () {}),
+                      ],
+                    ));
                 break;
             }
           },
@@ -123,11 +127,11 @@ class _Rounds extends State<Rounds> {
     );
   }
 
-  fetchrounds() async {
+  fetchRounds() async {
     String json = await getFileData("assets/events.json");
     var events = jsonDecode(json);
     EventsList event = new EventsList.fromJson(events);
-    print(event.events[0].participantdata[1].phone);
+    // print(event.events[0].participantdata[1].phone);
     for (int i = 0; i < events.length; i++) {
       {
         if (event.events[i].id.toString() == widget.eventid) {
@@ -164,8 +168,8 @@ class _Rounds extends State<Rounds> {
                       title: Text(phone[index]),
                       onChanged: editmode
                           ? (bool val) {
-                              itemChange(val, index);
-                            }
+                        itemChange(val, index);
+                      }
                           : null,
                     ),
                   ],

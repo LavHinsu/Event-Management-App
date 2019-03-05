@@ -1,27 +1,26 @@
+import 'dart:async' show Future;
 import 'dart:convert';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
-import 'dart:async' show Future;
-import 'Data.dart';
-
-import 'login.dart';
-import 'rounds.dart';
-import 'user.dart';
-
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'data_class.dart';
+import 'login_page.dart';
+import 'rounds_page.dart';
+import 'user.dart';
 
 Future<String> getFileData(String path) async {
   return await rootBundle.loadString(path);
 }
 
-class AfterLogin extends StatefulWidget {
+class MainPage extends StatefulWidget {
   @override
-  _AfterLogin createState() => new _AfterLogin();
+  MainPageState createState() => new MainPageState();
 }
 
-class _AfterLogin extends State<AfterLogin> {
+class MainPageState extends State<MainPage> {
   final FirebaseAuth auth = FirebaseAuth.instance;
 
   SharedPreferences prefs;
@@ -64,7 +63,7 @@ class _AfterLogin extends State<AfterLogin> {
                 await auth.signOut();
                 Navigator.of(context).pop();
                 Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => AfterSplash()));
+                    MaterialPageRoute(builder: (context) => LoginPage()));
               },
             ),
           ],
@@ -85,7 +84,7 @@ class _AfterLogin extends State<AfterLogin> {
     EventsList event = new EventsList.fromJson(events);
 
     List<String> managerphone =
-        username.split("+91"); //rempove the +91 from the username
+    username.split("+91"); //rempove the +91 from the username
 
     print("phone no of manager:" + managerphone[1]);
     for (int i = 0; i < events.length; i++) {
@@ -116,7 +115,8 @@ class _AfterLogin extends State<AfterLogin> {
                   Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => Rounds(eventid: ids[index])));
+                          builder: (context) =>
+                              RoundsPage(eventid: ids[index])));
                   //final snackBar = SnackBar(content: Text("Tap on $index"));
                   //Scaffold.of(context).showSnackBar(snackBar);
                 },
@@ -126,7 +126,7 @@ class _AfterLogin extends State<AfterLogin> {
                     child: Padding(
                       padding: const EdgeInsets.all(30.0),
                       child:
-                          Text(names[index], style: TextStyle(fontSize: 32.0)),
+                      Text(names[index], style: TextStyle(fontSize: 32.0)),
                     ),
                   ),
                 ),
