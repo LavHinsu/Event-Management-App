@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -15,7 +17,7 @@ class LoginPageState extends State<LoginPage> {
   SharedPreferences prefs;
   String uid;
   String username;
-
+  final GlobalKey<ScaffoldState> key = GlobalKey<ScaffoldState>();
   final myController = TextEditingController();
   String phoneNo;
   String verificationId;
@@ -23,6 +25,7 @@ class LoginPageState extends State<LoginPage> {
   String password;
 
   static FirebaseUser user;
+
   void initState() {
     super.initState();
     SharedPreferences.getInstance()
@@ -41,10 +44,51 @@ class LoginPageState extends State<LoginPage> {
     super.dispose();
   } // new Future.delayed(const Duration(seconds: 2));
 
-  void sigIn() async {
+  void signIn() async {
     var url = "https://udaan19-events-api.herokuapp.com/users/login";
-    var response = await http.post(
-        url, body: {"username": username, "password": password});
+    var response = await http.post(Uri.encodeFull(url),
+        body: {"username": phoneNo, "password": password},
+        headers: {"Accept": "application/json"});
+    Map<String, String> body = json.decode(response.body);
+    if (body.containsKey("token")) {
+      prefs.setString("token", body["token"]);
+      firebaseSigIn();
+      showDialog(
+          context: context,
+          builder: (context) =>
+              AlertDialog(
+                title: TextField(
+                  controller: myController,
+                  autofocus: true,
+                  onChanged: (String val) {
+                    if (val != null) {
+                      smsCode = val;
+                    }
+                  },
+                  decoration: InputDecoration(
+                      hintText: 'Enter OTP sent to your device'),
+                ),
+                actions: <Widget>[
+                  FlatButton(
+                    child: Text('Confirm'),
+                    onPressed: () {
+                      FirebaseAuth.instance
+                          .signInWithPhoneNumber(
+                          verificationId: verificationId, smsCode: smsCode)
+                          .then((user) {
+                        Navigator.of(context)
+                            .pushReplacementNamed('/afterlogin');
+                      }).catchError((e) {
+                        print(e);
+                      });
+                    },
+                  )
+                ],
+              ));
+    } else {
+      key.currentState
+          .showSnackBar(SnackBar(content: Text("Unable to sign in Try again")));
+    }
   }
 
   void firebaseSigIn() async {
@@ -66,7 +110,7 @@ class LoginPageState extends State<LoginPage> {
         print('${exception.message}');
       };
       await FirebaseAuth.instance.verifyPhoneNumber(
-          phoneNumber: this.phoneNo,
+          phoneNumber: "+91" + this.phoneNo,
           forceResendingToken: 1,
           codeSent: smsCodeSent,
           timeout: const Duration(seconds: 20),
@@ -86,6 +130,7 @@ class LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
+      key: key,
       body: SafeArea(
         child: Container(
           decoration: BoxDecoration(
@@ -94,137 +139,112 @@ class LoginPageState extends State<LoginPage> {
                   fit: BoxFit.fill)),
           child: new Center(
               child: Column(
-            children: <Widget>[
-              Spacer(),
-              Expanded(
-                  child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  Container(
-                    margin: EdgeInsets.fromLTRB(30, 10, 30, 0),
-                    child: Stack(
-                      alignment: AlignmentDirectional.center,
-                      children: <Widget>[
-                        Image(
-                          image: AssetImage("assets/images/textfield.png"),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                          child: TextField(
-                            keyboardType: TextInputType.phone,
-                            decoration: InputDecoration.collapsed(
-                                hintText: "Enter your phone number"),
-                            onChanged: (String val) {
-                              if (val != null) phoneNo = "+91" + val;
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    margin: EdgeInsets.fromLTRB(30, 20, 30, 0),
-                    child: Stack(
-                      alignment: AlignmentDirectional.center,
-                      children: <Widget>[
-                        Image(
-                          image: AssetImage("assets/images/textfield.png"),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                          child: TextField(
-                            obscureText: true,
-                            decoration:
-                                InputDecoration.collapsed(hintText: "Password"),
-                            onChanged: (String val) {
-                              if (val != null) password = val;
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Container(
-                      margin: EdgeInsets.fromLTRB(0, 10, 0, 0),
-                      alignment: Alignment.center,
+                  Spacer(),
+                  Expanded(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
-                          GestureDetector(
-                            onTap: () {
-                              showDialog(
-                                  context: context,
-                                  builder: (context) => AlertDialog(
-                                        title: TextField(
-                                          controller: myController,
-                                          autofocus: true,
-                                          onChanged: (String val) {
-                                            if (val != null) {
-                                              smsCode = val;
-                                            }
-                                          },
-                                          decoration: InputDecoration(
-                                              hintText:
-                                                  'Enter OTP sent to your device'),
-                                        ),
-                                        actions: <Widget>[
-                                          FlatButton(
-                                            child: Text('Send OTP'),
-                                            onPressed: firebaseSigIn,
-                                          ),
-                                          FlatButton(
-                                            child: Text('Confirm'),
-                                            onPressed: () {
-                                              FirebaseAuth.instance
-                                                  .signInWithPhoneNumber(
-                                                      verificationId:
-                                                          verificationId,
-                                                      smsCode: smsCode)
-                                                  .then((user) {
-                                                Navigator.of(context)
-                                                    .pushReplacementNamed(
-                                                        '/afterlogin');
-                                              }).catchError((e) {
-                                                print(e);
-                                              });
-                                            },
-                                          )
-                                        ],
-                                      ));
-                            },
+                          Container(
+                            margin: EdgeInsets.fromLTRB(30, 10, 30, 0),
                             child: Stack(
                               alignment: AlignmentDirectional.center,
                               children: <Widget>[
                                 Image(
-                                  image: AssetImage("assets/images/button.png"),
-                                  width: 150.0,
-                                  height: 80.0,
+                                  image: AssetImage("assets/images/textfield.png"),
                                 ),
-                                Align(
-                                    child: Text(
-                                      "Log In",
-                                      style: TextStyle(
-                                        fontSize: 18.0,
-                                      ),
-                                    ),
-                                    alignment: AlignmentDirectional.center)
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                                  child: TextField(
+                                    keyboardType: TextInputType.phone,
+                                    decoration: InputDecoration.collapsed(
+                                        hintText: "Enter your phone number"),
+                                    onChanged: (String val) {
+                                      if (val != null) phoneNo = val;
+                                    },
+                                  ),
+                                ),
                               ],
                             ),
                           ),
+                          Container(
+                            margin: EdgeInsets.fromLTRB(30, 20, 30, 0),
+                            child: Stack(
+                              alignment: AlignmentDirectional.center,
+                              children: <Widget>[
+                                Image(
+                                  image: AssetImage("assets/images/textfield.png"),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                                  child: TextField(
+                                    obscureText: true,
+                                    decoration:
+                                    InputDecoration.collapsed(hintText: "Password"),
+                                    onChanged: (String val) {
+                                      if (val != null) password = val;
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Container(
+                              margin: EdgeInsets.fromLTRB(0, 10, 0, 0),
+                              alignment: Alignment.center,
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: <Widget>[
+                                  GestureDetector(
+                                    onTap: () {
+                                      if (password == null || phoneNo == null) {
+                                        key.currentState.showSnackBar(SnackBar(
+                                            content: Text(
+                                                "Enter credentials")));
+                                      }
+                                      else if (password.isNotEmpty &&
+                                          phoneNo.isNotEmpty &&
+                                          phoneNo.length == 10 &&
+                                          double.tryParse(phoneNo) != null)
+                                        signIn();
+                                      else
+                                        key.currentState.showSnackBar(SnackBar(
+                                            content: Text(
+                                                "Enter valid credentials")));
+                                    },
+                                    child: Stack(
+                                      alignment: AlignmentDirectional.center,
+                                      children: <Widget>[
+                                        Image(
+                                          image: AssetImage("assets/images/button.png"),
+                                          width: 150.0,
+                                          height: 80.0,
+                                        ),
+                                        Align(
+                                            child: Text(
+                                              "Log In",
+                                              style: TextStyle(
+                                                fontSize: 18.0,
+                                              ),
+                                            ),
+                                            alignment: AlignmentDirectional.center)
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              )),
+                          Align(
+                            alignment: AlignmentDirectional.center,
+                            child: FlatButton(
+                              color: Colors.transparent,
+                              child: Text("Forgot Password?"),
+                              onPressed: () {},
+                            ),
+                          )
                         ],
-                      )),
-                  Align(
-                    alignment: AlignmentDirectional.center,
-                    child: FlatButton(
-                      color: Colors.transparent,
-                      child: Text("Forgot Password?"),
-                      onPressed: () {},
-                    ),
-                  )
+                      ))
                 ],
-              ))
-            ],
-          )),
+              )),
         ),
       ),
     );
