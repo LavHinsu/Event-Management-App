@@ -15,8 +15,7 @@ Future<String> getFileData(String path) async {
 class RoundsPage extends StatefulWidget {
   final String eventid;
   String roundno;
-
-  RoundsPage({Key key, @required this.eventid,this.roundno}) : super(key: key);
+  RoundsPage({Key key, @required this.eventid, this.roundno}) : super(key: key);
 
   @override
   RoundsPageState createState() => new RoundsPageState();
@@ -31,19 +30,25 @@ class RoundsPageState extends State<RoundsPage> {
   List<bool> inputs = new List<bool>();
   List<bool> attend = List();
   List<bool> promote = List();
-
+  BottomNavigationBarItem _bottomNavigationBarItem;
   bool editmode = false;
-
+  BottomNavigationBarItem attendace = BottomNavigationBarItem(
+      icon: Icon(Icons.event), title: Text("Confirm Attendance"));
+  BottomNavigationBarItem promotion = BottomNavigationBarItem(
+      icon: Icon(Icons.event), title: Text("Promote to next round"));
   @override
   void initState() {
     super.initState();
     //print(widget.eventid);
     fetchRounds();
+    _bottomNavigationBarItem = attendace;
   }
 
   void itemChange(bool val, int index) {
     setState(() {
-      inputs[index] = val;
+      if (_bottomNavigationBarItem == attendace)
+        attend[index] = val;
+      else if (_bottomNavigationBarItem == promotion) promote[index] = val;
     });
   }
 
@@ -73,45 +78,66 @@ class RoundsPageState extends State<RoundsPage> {
             },
           )
         ],
-        title: Text('Participants of round: '+widget.roundno),
+        title: Text('Participants'),
       ),
       bottomNavigationBar: BottomNavigationBar(
           onTap: (i) {
-            switch (i) {
-              case 0:
-                showDialog(
-                    context: context,
-                    builder: (context) => AlertDialog(
-                          title: const Text(
-                              'did these participants attended this round?'),
-                          content: Text('NOTICE: This action cannot be undone'),
-                          actions: <Widget>[
-                            FlatButton(
-                              child: Text('Cancel'),
-                              onPressed: () => Navigator.pop(context),
-                            ),
-                            FlatButton(
-                                child: Text('Confirm'), onPressed: () {}),
-                          ],
-                        ));
-                break;
-              case 1:
-                showDialog(
-                    context: context,
-                    builder: (context) => AlertDialog(
-                          title: const Text(
-                              'Are you sure you want to promote these users?'),
-                          content: Text('NOTICE: This action cannot be undone'),
-                          actions: <Widget>[
-                            FlatButton(
-                              child: Text('Cancel'),
-                              onPressed: () => Navigator.pop(context),
-                            ),
-                            FlatButton(
-                                child: Text('Confirm'), onPressed: () {}),
-                          ],
-                        ));
-                break;
+            if (_bottomNavigationBarItem == attendace) {
+              showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                        title: const Text(
+                            'did these participants attended this round?'),
+                        content: Text('NOTICE: This action cannot be undone'),
+                        actions: <Widget>[
+                          FlatButton(
+                            child: Text('Cancel'),
+                            onPressed: () => Navigator.pop(context),
+                          ),
+                          FlatButton(
+                              child: Text('Confirm'),
+                              onPressed: () {
+                                List<String> temp = List();
+                                for (int i = 0; i < attend.length; i++) {
+                                  if (attend[i]) temp.add(phone[i]);
+                                }
+                                print(temp);
+                                setState(() {
+                                  _bottomNavigationBarItem = promotion;
+                                  phone = temp;
+                                  promote = List();
+                                  for(int i=0;i<phone.length;i++){
+                                    promote.add(false);
+                                  }
+                                });
+                                Navigator.pop(context);
+                              }),
+                        ],
+                      ));
+            } else {
+              showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                        title: const Text(
+                            'Are you sure you want to promote these users?'),
+                        content: Text('NOTICE: This action cannot be undone'),
+                        actions: <Widget>[
+                          FlatButton(
+                            child: Text('Cancel'),
+                            onPressed: () => Navigator.pop(context),
+                          ),
+                          FlatButton(
+                              child: Text('Confirm'),
+                              onPressed: () {
+                                List<String> temp = List();
+                                for (int i = 0; i < promote.length; i++) {
+                                  if (promote[i]) temp.add(phone[i]);
+                                }
+                                phone = temp;
+                                print(phone);
+                              }),
+                        ],
+                      ));
             }
           },
           items: <BottomNavigationBarItem>[
@@ -156,38 +182,37 @@ class RoundsPageState extends State<RoundsPage> {
 
   Widget _rounds() {
     if (loaded) {
-      if(int.parse(widget.roundno)==1)
-      {
-      return ListView.builder(
-          itemCount: phone.length,
-          itemBuilder: (context, index) {
-            return Card(
-              child: Container(
-                padding: EdgeInsets.all(10.0),
-                child: Column(
-                  children: <Widget>[
-                    
-                    CheckboxListTile(
-                      
-                      value: inputs[index],
-                      title: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Text('Participant name'),
-                          Text(phone[index])
-                        ],
+      if (int.parse(widget.roundno) == 1) {
+        return ListView.builder(
+            itemCount: _bottomNavigationBarItem==attendace?attend.length:promote.length,
+            itemBuilder: (context, index) {
+              return Card(
+                child: Container(
+                  padding: EdgeInsets.all(10.0),
+                  child: Column(
+                    children: <Widget>[
+                      CheckboxListTile(
+                        value: _bottomNavigationBarItem == attendace
+                            ? attend[index]
+                            : promote[index],
+                        title: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Text('Participant name'),
+                            Text(phone[index])
+                          ],
+                        ),
+                        onChanged: editmode
+                            ? (bool val) {
+                                itemChange(val, index);
+                              }
+                            : null,
                       ),
-                      onChanged: editmode
-                          ? (bool val) {
-                              itemChange(val, index);
-                            }
-                          : null,
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            );
-          });
+              );
+            });
       }
     } else {
       return CircularProgressIndicator();

@@ -84,12 +84,10 @@ class MainPageState extends State<MainPage> {
     String json = await getFileData("assets/events.json");
     final events = jsonDecode(json);
     EventsList event = new EventsList.fromJson(events);
-    print(username);
-    var managerphone=username.split('+91');
 
     for (int i = 0; i < events.length; i++) {
       for (int j = 0; j < event.events[i].managerdata.length; j++) {
-        if (event.events[i].managerdata[j].phone == managerphone[1]) {
+        if (event.events[i].managerdata[j].phone == username) {
           ids.add(event.events[i].id);
           names.add(event.events[i].eventname);
         }

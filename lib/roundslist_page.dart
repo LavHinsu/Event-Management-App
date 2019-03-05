@@ -22,7 +22,7 @@ class RoundListState extends State<RoundList> {
     fetchnoofrounds();
   }
 
-  bool loaded;
+  bool loaded =false;
   int noofrounds;
   fetchnoofrounds() async {
     String json = await getFileData("assets/events.json");
@@ -30,10 +30,11 @@ class RoundListState extends State<RoundList> {
     EventsList event = new EventsList.fromJson(events);
 
     for (int i = 0; i < events.length; i++) {
-      print('total rounds: $noofrounds');
+
       if (event.events[i].id == widget.eventid) {
         noofrounds = event.events[i].rounds.length;
       }
+      print('total rounds: $noofrounds');
     }
     setState(() {
       loaded = true;
