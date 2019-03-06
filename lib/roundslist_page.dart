@@ -1,9 +1,10 @@
 import 'dart:convert';
-
 import 'package:event_app/rounds_page.dart';
 import 'package:flutter/material.dart';
 import 'data_class.dart';
+import 'user.dart';
 import 'rounds_page.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class RoundList extends StatefulWidget {
   final String eventid;
@@ -18,17 +19,17 @@ class RoundListState extends State<RoundList> {
   @override
   void initState() {
     super.initState();
-
     fetchnoofrounds();
   }
 
   bool loaded =false;
   int noofrounds;
   fetchnoofrounds() async {
+  
     String json = await getFileData("assets/events.json");
     var events = jsonDecode(json);
     EventsList event = new EventsList.fromJson(events);
-
+    
     for (int i = 0; i < events.length; i++) {
 
       if (event.events[i].id == widget.eventid) {

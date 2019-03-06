@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'dart:convert';
-
+import 'user.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
-
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'data_class.dart';
 //import 'package:http/http.dart';
 import 'participant_class.dart';
@@ -23,8 +23,11 @@ class RoundsPage extends StatefulWidget {
 }
 
 class RoundsPageState extends State<RoundsPage> {
+  var event;
+  int index;
+  List<dynamic> events;
   List<String> names = List();
-  List<String> phone = List();
+  List<dynamic> phone = List();
   List<bool> inputs = new List<bool>();
   List<bool> attend = List();
   List<bool> promote = List();
@@ -32,11 +35,13 @@ class RoundsPageState extends State<RoundsPage> {
   @override
   void initState() {
     super.initState();
+    print(widget.roundno);
     currentAction = attendance;
     //print(widget.eventid);
+    doc = Firestore.instance.collection("managers").document(username);
     fetchRounds();
   }
-
+ DocumentReference doc;
   Text attendance = Text(
     "Confirm Attendance",
     style: TextStyle(fontSize: 18.0),
@@ -135,20 +140,21 @@ class RoundsPageState extends State<RoundsPage> {
   addParticipants() async {}
 
   fetchRounds() async {
-    String json = await getFileData("assets/events.json");
-    var events = jsonDecode(json);
-    EventsList event = new EventsList.fromJson(events);
 
-    for (int i = 0; i < events.length; i++) {
-      {
-        if (event.events[i].id.toString() == widget.eventid) {
-          event.events[i].participantdata.forEach((participant) {
-            phone.add(participant);
-            attend.add(false);
-            promote.add(false);
-          });
-          break;
+    events = (await doc.snapshots().first).data["events"];
+    
+    for(int i =0 ;i<events.length;i++){
+      if(events[i]["id"]==widget.eventid)
+      { index = i;
+        event =events[i];
+        print(event["rounds"][int.parse(widget.roundno)-1]["initial"].toString());
+        phone =event["rounds"][int.parse(widget.roundno)-1]["initial"];
+        print("phone : " + phone.toString());
+        for(int j =0;j<phone.length;j++){
+          attend.add(false);
+          promote.add(false);
         }
+        break;
       }
     }
     print(count);
@@ -162,7 +168,7 @@ class RoundsPageState extends State<RoundsPage> {
 
   Widget _rounds() {
     if (loaded) {
-      if (int.parse(widget.roundno) == 1) {
+      if (int.parse(widget.roundno) !=0) {
         return Column(
           children: <Widget>[
             Expanded(
@@ -283,6 +289,9 @@ class RoundsPageState extends State<RoundsPage> {
                                         promote.add(false);
                                       }
                                     });
+                                    event["rounds"][int.parse(widget.roundno)-1]["attendee"] =phone;
+                                    events[index] =event;
+                                    doc.updateData({"events":events});
                                     Navigator.pop(context);
                                   }),
                             ],
@@ -309,6 +318,9 @@ class RoundsPageState extends State<RoundsPage> {
                                     }
                                     phone = temp;
                                     print(phone);
+                                    event["rounds"][int.parse(widget.roundno)]["initial"] =phone;
+                                    events[index] =event;
+                                    doc.updateData({"events":events});
                                     Navigator.popAndPushNamed(context, "/msg");
                                   }),
                             ],

@@ -31,7 +31,7 @@ class MainPageState extends State<MainPage> {
   bool loaded = false;
 
   final GlobalKey<ScaffoldState> key = GlobalKey<ScaffoldState>();
-
+  
   @override
   void initState() {
     super.initState();
@@ -42,9 +42,15 @@ class MainPageState extends State<MainPage> {
           username = prefs.getString('username');
         });
       });
-
-    if (Firestore.instance.collection("managers").document(username).get() !=
-        null) fetch();
+      Firestore.instance.collection("managers").document(username).snapshots().listen((data){
+        if(data.exists)
+        setState(() {
+          loaded = true;
+        });
+        else 
+        load();
+      });
+  
   }
 
   @override
@@ -85,20 +91,43 @@ class MainPageState extends State<MainPage> {
     );
   }
 
-  void fetch() async {
+  void load() async {
     String json = await getFileData("assets/events.json");
     final events = jsonDecode(json);
     EventsList event = new EventsList.fromJson(events);
-
+    List<dynamic> list =List();
+    
     for (int i = 0; i < events.length; i++) {
       for (int j = 0; j < event.events[i].managerdata.length; j++) {
         if (event.events[i].managerdata[j].phone == username) {
-          ids.add(event.events[i].id);
-          names.add(event.events[i].eventname);
+          Map<String,dynamic> temp=Map();
+          temp["id"] = event.events[i].id;
+          temp["totalRounds"] = event.events[i].rounds.length;
+          temp["currentRound"] = 1;
+          temp["first"] = "";
+          temp["winner"] = "";
+          temp["second"] = "";
+          temp["name"] = event.events[i].eventname;
+          List<dynamic> roundList =List();
+          
+          for(int i=0;i<event.events[i].rounds.length;i++){
+            Map<String,dynamic> rounds =Map();
+            if(i==0)
+              rounds["initial"] = event.events[i].participantdata;
+            else
+            rounds["initial"] = List();
+            rounds["attendee"] = List();
+            roundList.add(rounds);
+          }
+          temp["rounds"] = roundList;
+          // ids.add(event.events[i].id);
+          // names.add(event.events[i].eventname);
+          list.add(temp);
         }
       }
     }
-    names.add('you are not a manager, contact the devs');
+    
+    Firestore.instance.collection("managers").document(username).setData({"events" : list});
     setState(() {
       loaded = true;
     });
@@ -112,17 +141,38 @@ class MainPageState extends State<MainPage> {
             .collection('managers')
             .document(username)
             .snapshots(),
-            builder: (context,snapshot){
-              if(snapshot.hasData)
-              {
-                print(snapshot.data['events'].toString());
-                return Text(snapshot.data['events'].toString());
-               
-              }
-              else{
-                return CircularProgressIndicator();
-              }
-            },
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            List<dynamic> events = snapshot.data["events"];
+            //print(snapshot.data['events'].toString());
+            return ListView.builder(
+              itemCount: events.length,
+              itemBuilder: (context, i) => GestureDetector(
+                    onTap: () {
+                      print(i);
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => RoundList(
+                                    eventid: events[i]["id"],
+                                  )));
+                    },
+                    child: Card(
+                        margin: EdgeInsets.fromLTRB(10, 10, 10, 10),
+                        child: Center(
+                          child: Padding(
+                            padding: const EdgeInsets.all(30.0),
+                            child: Text(
+                              events[i]["name"],
+                            ),
+                          ),
+                        )),
+                  ),
+            );
+          } else {
+            return CircularProgressIndicator();
+          }
+        },
       ) /*ListView.builder(
             itemCount: ids.length,
             itemBuilder: (context, index) {
