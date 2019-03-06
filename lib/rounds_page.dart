@@ -7,6 +7,7 @@ import 'package:flutter/services.dart' show rootBundle;
 
 import 'data_class.dart';
 //import 'package:http/http.dart';
+import 'participant_class.dart';
 
 Future<String> getFileData(String path) async {
   return await rootBundle.loadString(path);
@@ -37,7 +38,9 @@ class RoundsPageState extends State<RoundsPage> {
   }
 
   Text attendance = Text(
-    "Confirm Attendance", style: TextStyle(fontSize: 18.0),);
+    "Confirm Attendance",
+    style: TextStyle(fontSize: 18.0),
+  );
   Text promotion = Text("Confirm Promotion", style: TextStyle(fontSize: 18.0));
   Text currentAction;
   void itemChange(bool val, int index) {
@@ -63,8 +66,7 @@ class RoundsPageState extends State<RoundsPage> {
             TextEditingController phone = TextEditingController();
             showDialog(
               context: context,
-              builder: (context) =>
-                  SimpleDialog(
+              builder: (context) => SimpleDialog(
                     title: Text("Add participant"),
                     children: <Widget>[
                       Padding(
@@ -81,7 +83,7 @@ class RoundsPageState extends State<RoundsPage> {
                             top: 12.0, left: 12.0, right: 12.0),
                         child: TextField(
                           decoration:
-                          InputDecoration(labelText: "Phone number"),
+                              InputDecoration(labelText: "Phone number"),
                           maxLength: 10,
                           controller: phone,
                           keyboardType: TextInputType.phone,
@@ -136,6 +138,7 @@ class RoundsPageState extends State<RoundsPage> {
     String json = await getFileData("assets/events.json");
     var events = jsonDecode(json);
     EventsList event = new EventsList.fromJson(events);
+
     for (int i = 0; i < events.length; i++) {
       {
         if (event.events[i].id.toString() == widget.eventid) {
@@ -180,13 +183,12 @@ class RoundsPageState extends State<RoundsPage> {
                               title: GestureDetector(
                                 onDoubleTap: () {
                                   TextEditingController name =
-                                  TextEditingController();
+                                      TextEditingController();
                                   TextEditingController phoneT =
-                                  TextEditingController();
+                                      TextEditingController();
                                   showDialog(
                                       context: context,
-                                      builder: (_) =>
-                                          SimpleDialog(
+                                      builder: (_) => SimpleDialog(
                                             title: Text(
                                                 "Change participant details"),
                                             children: <Widget>[
@@ -200,7 +202,7 @@ class RoundsPageState extends State<RoundsPage> {
                                                       labelText: "Name"),
                                                   controller: name,
                                                   keyboardType:
-                                                  TextInputType.text,
+                                                      TextInputType.text,
                                                 ),
                                               ),
                                               Padding(
@@ -210,12 +212,11 @@ class RoundsPageState extends State<RoundsPage> {
                                                     right: 12.0),
                                                 child: TextField(
                                                   decoration: InputDecoration(
-                                                      labelText:
-                                                      phone[index]),
+                                                      labelText: phone[index]),
                                                   maxLength: 10,
                                                   controller: phoneT,
                                                   keyboardType:
-                                                  TextInputType.phone,
+                                                      TextInputType.phone,
                                                 ),
                                               ),
                                               Padding(

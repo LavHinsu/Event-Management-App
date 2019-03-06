@@ -43,8 +43,10 @@ Map<String, dynamic> _$ParticipantToJson(Participant instance) =>
 
 Rounddata _$RounddataFromJson(Map<String, dynamic> json) {
   return Rounddata(
-      phone: json['phone'] as String, name: json['name'] as String);
+      initial: json['initial'] as List, attendee: json['attendee'] as List);
 }
 
-Map<String, dynamic> _$RounddataToJson(Rounddata instance) =>
-    <String, dynamic>{'name': instance.name, 'phone': instance.phone};
+Map<String, dynamic> _$RounddataToJson(Rounddata instance) => <String, dynamic>{
+      'initial': instance.initial,
+      'attendee': instance.attendee
+    };

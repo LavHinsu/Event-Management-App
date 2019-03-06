@@ -62,6 +62,9 @@ class MainPageState extends State<MainPage> {
               leading: Icon(Icons.account_box),
               title: Text("Log Out"),
               onTap: () async {
+                prefs.setString('user', null);
+                prefs.setString("username", null);
+                prefs.setBool("isloggedin", false);
                 await auth.signOut();
                 Navigator.of(context).pop();
                 Navigator.push(context,

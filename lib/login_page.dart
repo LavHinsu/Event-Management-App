@@ -56,8 +56,7 @@ class LoginPageState extends State<LoginPage> {
       firebaseSigIn();
       showDialog(
           context: context,
-          builder: (context) =>
-              AlertDialog(
+          builder: (context) => AlertDialog(
                 title: TextField(
                   controller: myController,
                   autofocus: true,
@@ -75,8 +74,12 @@ class LoginPageState extends State<LoginPage> {
                     onPressed: () {
                       FirebaseAuth.instance
                           .signInWithPhoneNumber(
-                          verificationId: verificationId, smsCode: smsCode)
+                              verificationId: verificationId, smsCode: smsCode)
                           .then((user) {
+                        User.user = user;
+                        User.username = phoneNo;
+                        prefs.setString('uid', user.uid);
+                        prefs.setString("username", phoneNo);
                         Navigator.of(context)
                             .pushReplacementNamed('/afterlogin');
                       }).catchError((e) {
@@ -104,6 +107,8 @@ class LoginPageState extends State<LoginPage> {
         User.username = phoneNo;
         prefs.setString('uid', user.uid);
         prefs.setString("username", phoneNo);
+        print(prefs.getString('uid'));
+        print(prefs.getString("username"));
         print(prefs.getString('uid'));
         print(prefs.getString("username"));
         Navigator.pushReplacement(
@@ -136,112 +141,109 @@ class LoginPageState extends State<LoginPage> {
                   fit: BoxFit.fill)),
           child: new Center(
               child: Column(
+            children: <Widget>[
+              Spacer(),
+              Expanded(
+                  child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  Spacer(),
-                  Expanded(
+                  Container(
+                    margin: EdgeInsets.fromLTRB(30, 10, 30, 0),
+                    child: Stack(
+                      alignment: AlignmentDirectional.center,
+                      children: <Widget>[
+                        Image(
+                          image: AssetImage("assets/images/textfield.png"),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                          child: TextField(
+                            keyboardType: TextInputType.phone,
+                            decoration: InputDecoration.collapsed(
+                                hintText: "Enter your phone number"),
+                            onChanged: (String val) {
+                              if (val != null) phoneNo = val;
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    margin: EdgeInsets.fromLTRB(30, 20, 30, 0),
+                    child: Stack(
+                      alignment: AlignmentDirectional.center,
+                      children: <Widget>[
+                        Image(
+                          image: AssetImage("assets/images/textfield.png"),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                          child: TextField(
+                            obscureText: true,
+                            decoration:
+                                InputDecoration.collapsed(hintText: "Password"),
+                            onChanged: (String val) {
+                              if (val != null) password = val;
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                      margin: EdgeInsets.fromLTRB(0, 10, 0, 0),
+                      alignment: Alignment.center,
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
-                          Container(
-                            margin: EdgeInsets.fromLTRB(30, 10, 30, 0),
+                          GestureDetector(
+                            onTap: () {
+                              if (password == null || phoneNo == null) {
+                                key.currentState.showSnackBar(SnackBar(
+                                    content: Text("Enter credentials")));
+                              } else if (password.isNotEmpty &&
+                                  phoneNo.isNotEmpty &&
+                                  phoneNo.length == 10 &&
+                                  double.tryParse(phoneNo) != null)
+                                signIn();
+                              else
+                                key.currentState.showSnackBar(SnackBar(
+                                    content: Text("Enter valid credentials")));
+                            },
                             child: Stack(
                               alignment: AlignmentDirectional.center,
                               children: <Widget>[
                                 Image(
-                                  image: AssetImage("assets/images/textfield.png"),
+                                  image: AssetImage("assets/images/button.png"),
+                                  width: 150.0,
+                                  height: 80.0,
                                 ),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                                  child: TextField(
-                                    keyboardType: TextInputType.phone,
-                                    decoration: InputDecoration.collapsed(
-                                        hintText: "Enter your phone number"),
-                                    onChanged: (String val) {
-                                      if (val != null) phoneNo = val;
-                                    },
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Container(
-                            margin: EdgeInsets.fromLTRB(30, 20, 30, 0),
-                            child: Stack(
-                              alignment: AlignmentDirectional.center,
-                              children: <Widget>[
-                                Image(
-                                  image: AssetImage("assets/images/textfield.png"),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                                  child: TextField(
-                                    obscureText: true,
-                                    decoration:
-                                    InputDecoration.collapsed(hintText: "Password"),
-                                    onChanged: (String val) {
-                                      if (val != null) password = val;
-                                    },
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Container(
-                              margin: EdgeInsets.fromLTRB(0, 10, 0, 0),
-                              alignment: Alignment.center,
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: <Widget>[
-                                  GestureDetector(
-                                    onTap: () {
-                                      if (password == null || phoneNo == null) {
-                                        key.currentState.showSnackBar(SnackBar(
-                                            content: Text(
-                                                "Enter credentials")));
-                                      }
-                                      else if (password.isNotEmpty &&
-                                          phoneNo.isNotEmpty &&
-                                          phoneNo.length == 10 &&
-                                          double.tryParse(phoneNo) != null)
-                                        signIn();
-                                      else
-                                        key.currentState.showSnackBar(SnackBar(
-                                            content: Text(
-                                                "Enter valid credentials")));
-                                    },
-                                    child: Stack(
-                                      alignment: AlignmentDirectional.center,
-                                      children: <Widget>[
-                                        Image(
-                                          image: AssetImage("assets/images/button.png"),
-                                          width: 150.0,
-                                          height: 80.0,
-                                        ),
-                                        Align(
-                                            child: Text(
-                                              "Log In",
-                                              style: TextStyle(
-                                                fontSize: 18.0,
-                                              ),
-                                            ),
-                                            alignment: AlignmentDirectional.center)
-                                      ],
+                                Align(
+                                    child: Text(
+                                      "Log In",
+                                      style: TextStyle(
+                                        fontSize: 18.0,
+                                      ),
                                     ),
-                                  ),
-                                ],
-                              )),
-                          Align(
-                            alignment: AlignmentDirectional.center,
-                            child: FlatButton(
-                              color: Colors.transparent,
-                              child: Text("Forgot Password?"),
-                              onPressed: () {},
+                                    alignment: AlignmentDirectional.center)
+                              ],
                             ),
-                          )
+                          ),
                         ],
-                      ))
+                      )),
+                  Align(
+                    alignment: AlignmentDirectional.center,
+                    child: FlatButton(
+                      color: Colors.transparent,
+                      child: Text("Forgot Password?"),
+                      onPressed: () {},
+                    ),
+                  )
                 ],
-              )),
+              ))
+            ],
+          )),
         ),
       ),
     );

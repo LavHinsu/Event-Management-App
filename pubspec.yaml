@@ -51,6 +51,7 @@ flutter:
   #  - images/a_dot_ham.jpeg
   assets:
   - assets/events.json
+  - assets/json.json
   - assets/images/udaan_logo.png
   - assets/images/background.png
   - assets/images/textfield.png
