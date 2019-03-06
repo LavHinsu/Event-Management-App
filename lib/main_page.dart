@@ -1,6 +1,6 @@
 import 'dart:async' show Future;
 import 'dart:convert';
-
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
@@ -42,6 +42,10 @@ class MainPageState extends State<MainPage> {
           username = prefs.getString('username');
         });
       });
+    
+    if (Firestore.instance.collection("managers").document(username).get() !=
+        null)
+      print(Firestore.instance.collection("managers").document(username).get());
     fetch();
   }
 
