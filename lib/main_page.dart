@@ -42,11 +42,9 @@ class MainPageState extends State<MainPage> {
           username = prefs.getString('username');
         });
       });
-    
+
     if (Firestore.instance.collection("managers").document(username).get() !=
-        null)
-      print(Firestore.instance.collection("managers").document(username).get());
-    fetch();
+        null) fetch();
   }
 
   @override
@@ -101,7 +99,6 @@ class MainPageState extends State<MainPage> {
       }
     }
     names.add('you are not a manager, contact the devs');
-
     setState(() {
       loaded = true;
     });
@@ -110,7 +107,23 @@ class MainPageState extends State<MainPage> {
   Widget _events() {
     if (loaded) {
       return Center(
-        child: ListView.builder(
+          child: StreamBuilder(
+        stream: Firestore.instance
+            .collection('managers')
+            .document(username)
+            .snapshots(),
+            builder: (context,snapshot){
+              if(snapshot.hasData)
+              {
+                print(snapshot.data['events'].toString());
+                return Text(snapshot.data['events'].toString());
+               
+              }
+              else{
+                return CircularProgressIndicator();
+              }
+            },
+      ) /*ListView.builder(
             itemCount: ids.length,
             itemBuilder: (context, index) {
               return GestureDetector(
@@ -139,8 +152,8 @@ class MainPageState extends State<MainPage> {
                   ),
                 ),
               );
-            }),
-      );
+            }),*/
+          );
     } else
       return CircularProgressIndicator();
   }
