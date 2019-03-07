@@ -31,7 +31,7 @@ class MainPageState extends State<MainPage> {
   bool loaded = false;
 
   final GlobalKey<ScaffoldState> key = GlobalKey<ScaffoldState>();
-  
+
   @override
   void initState() {
     super.initState();
@@ -42,15 +42,18 @@ class MainPageState extends State<MainPage> {
           username = prefs.getString('username');
         });
       });
-      Firestore.instance.collection("managers").document(username).snapshots().listen((data){
-        if(data.exists)
+    Firestore.instance
+        .collection("managers")
+        .document(username)
+        .snapshots()
+        .listen((data) {
+      if (data.exists)
         setState(() {
           loaded = true;
         });
-        else 
+      else
         load();
-      });
-  
+    });
   }
 
   @override
@@ -70,6 +73,7 @@ class MainPageState extends State<MainPage> {
               leading: Icon(Icons.account_box),
               title: Text("Log Out"),
               onTap: () async {
+                prefs.setString("token", null);
                 prefs.setString('user', null);
                 prefs.setString("username", null);
                 prefs.setBool("isloggedin", false);
@@ -95,12 +99,12 @@ class MainPageState extends State<MainPage> {
     String json = await getFileData("assets/events.json");
     final events = jsonDecode(json);
     EventsList event = new EventsList.fromJson(events);
-    List<dynamic> list =List();
-    
+    List<dynamic> list = List();
+
     for (int i = 0; i < events.length; i++) {
       for (int j = 0; j < event.events[i].managerdata.length; j++) {
         if (event.events[i].managerdata[j].phone == username) {
-          Map<String,dynamic> temp=Map();
+          Map<String, dynamic> temp = Map();
           temp["id"] = event.events[i].id;
           temp["totalRounds"] = event.events[i].rounds.length;
           temp["currentRound"] = 1;
@@ -108,14 +112,14 @@ class MainPageState extends State<MainPage> {
           temp["winner"] = "";
           temp["second"] = "";
           temp["name"] = event.events[i].eventname;
-          List<dynamic> roundList =List();
-          
-          for(int i=0;i<event.events[i].rounds.length;i++){
-            Map<String,dynamic> rounds =Map();
-            if(i==0)
+          List<dynamic> roundList = List();
+
+          for (int i = 0; i < event.events[i].rounds.length; i++) {
+            Map<String, dynamic> rounds = Map();
+            if (i == 0)
               rounds["initial"] = event.events[i].participantdata;
             else
-            rounds["initial"] = List();
+              rounds["initial"] = List();
             rounds["attendee"] = List();
             roundList.add(rounds);
           }
@@ -126,8 +130,11 @@ class MainPageState extends State<MainPage> {
         }
       }
     }
-    
-    Firestore.instance.collection("managers").document(username).setData({"events" : list});
+
+    Firestore.instance
+        .collection("managers")
+        .document(username)
+        .setData({"events": list});
     setState(() {
       loaded = true;
     });
@@ -163,7 +170,7 @@ class MainPageState extends State<MainPage> {
                           child: Padding(
                             padding: const EdgeInsets.all(30.0),
                             child: Text(
-                              events[i]["name"],
+                              events[i]["name"],textScaleFactor: 1.5,
                             ),
                           ),
                         )),
@@ -173,37 +180,7 @@ class MainPageState extends State<MainPage> {
             return CircularProgressIndicator();
           }
         },
-      ) /*ListView.builder(
-            itemCount: ids.length,
-            itemBuilder: (context, index) {
-              return GestureDetector(
-                onTap: () {
-                  print(index);
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => RoundList(
-                                eventid: ids[index],
-                              )));
-                  //MaterialPageRoute(
-                  //  builder: (context) =>
-                  //    RoundsPage(eventid: ids[index])));
-                  //final snackBar = SnackBar(content: Text("Tap on $index"));
-                  //Scaffold.of(context).showSnackBar(snackBar);
-                },
-                child: Card(
-                  margin: EdgeInsets.fromLTRB(10, 10, 10, 10),
-                  child: Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(30.0),
-                      child:
-                          Text(names[index], style: TextStyle(fontSize: 32.0)),
-                    ),
-                  ),
-                ),
-              );
-            }),*/
-          );
+      ));
     } else
       return CircularProgressIndicator();
   }

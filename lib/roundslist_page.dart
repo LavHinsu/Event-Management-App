@@ -58,7 +58,7 @@ class RoundListState extends State<RoundList> {
     if (loaded) {
       return Center(
         child: ListView.builder(
-            itemCount: noofrounds,
+            itemCount: noofrounds  ,
             itemBuilder: (context, index) {
               return GestureDetector(
                 onTap: () {
@@ -75,7 +75,7 @@ class RoundListState extends State<RoundList> {
                   child: Center(
                     child: Padding(
                       padding: const EdgeInsets.all(30.0),
-                      child: Text('round ${index + 1}',
+                      child: Text('Round ${index + 1}',
                           style: TextStyle(fontSize: 32.0)),
                     ),
                   ),

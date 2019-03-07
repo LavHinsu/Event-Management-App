@@ -45,14 +45,19 @@ class LoginPageState extends State<LoginPage> {
   } // new Future.delayed(const Duration(seconds: 2));
 
   void signIn() async {
-    var url = "https://udaan19-events-api.herokuapp.com/users/login";
-    var response = await http.post(Uri.encodeFull(url),
-        body: {"username": phoneNo, "password": password},
-        headers: {"Accept": "application/json"});
-    print(response.body);
-    var body = json.decode(response.body);
-    if (body.containsKey("token")) {
-      prefs.setString("token", body["token"]);
+    // print("phone" + phoneNo + "  password" + password);
+    // var url = "https://immense-waters-72031.herokuapp.com/login";
+    // var temp = {"username": phoneNo, "password": password};
+    // var response = await http.post(url,
+    //     body: json.encode(temp),
+    // );
+    // print(response.body);
+    // var body = json.decode(response.body);
+    // print(body);
+    // if (body.containsKey("token")) {
+    //   print(body);
+    //   prefs.setString("token", body["token"]);
+    //   User.token=body["token"];
       firebaseSigIn();
       showDialog(
           context: context,
@@ -89,10 +94,10 @@ class LoginPageState extends State<LoginPage> {
                   )
                 ],
               ));
-    } else {
-      key.currentState
-          .showSnackBar(SnackBar(content: Text("Unable to sign in Try again")));
-    }
+    // } else {
+    //   key.currentState
+    //       .showSnackBar(SnackBar(content: Text("Unable to sign in Try again")));
+    // }
   }
 
   void firebaseSigIn() async {
