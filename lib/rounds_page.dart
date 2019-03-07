@@ -24,7 +24,8 @@ class RoundsPage extends StatefulWidget {
   RoundsPageState createState() => new RoundsPageState();
 }
 
-class RoundsPageState extends State<RoundsPage> {
+class RoundsPageState extends State<RoundsPage>
+    with SingleTickerProviderStateMixin {
   var event;
   int index;
   List<dynamic> events;
@@ -33,12 +34,15 @@ class RoundsPageState extends State<RoundsPage> {
   List<bool> inputs = new List<bool>();
   List<bool> attend = List();
   List<bool> promote = List();
+  TabController tabController;
   bool editmode = false;
   @override
   void initState() {
     super.initState();
     print(widget.roundno);
     currentAction = attendance;
+
+    tabController = TabController(vsync: this, length: 3);
     //print(widget.eventid);
     doc = Firestore.instance.collection("managers").document(username);
     fetchRounds();
@@ -64,9 +68,24 @@ class RoundsPageState extends State<RoundsPage> {
   List<String> round = new List();
   int count;
   bool loaded = false;
+  bool tabbed = false;
 
   Widget build(BuildContext context) {
     return Scaffold(
+      bottomNavigationBar: tabbed
+          ? Material(
+              color: Colors.blue,
+              child: TabBar(
+                controller: tabController,
+                tabs: <Widget>[
+                  Tab(
+                    text: 'All',
+                  ),
+                  Tab(text: 'Atendees'),
+                  Tab(text: 'Promoted')
+                ],
+              ))
+          : null,
       floatingActionButton: int.parse(widget.roundno) == 1
           ? FloatingActionButton(
               onPressed: () {
@@ -183,7 +202,7 @@ class RoundsPageState extends State<RoundsPage> {
             },
           )
         ],
-        title: Text('Participants'),
+        title: Text("Round : ${widget.roundno}"),
       ),
       body: Center(
         child: _rounds(),
@@ -210,10 +229,10 @@ class RoundsPageState extends State<RoundsPage> {
     }
     print(count);
     setState(() {
-      for (int i = 0; i < phone.length; i++) {
-        inputs.add(false);
+      if (int.parse(widget.roundno) < event["currentRound"]) {
+        tabbed = true;
       }
-      loaded = true;
+            loaded = true;
     });
   }
 
@@ -344,7 +363,9 @@ class RoundsPageState extends State<RoundsPage> {
                                     }
                                     // print(temp);
                                     setState(() {
-                                      currentAction = promotion;
+                                      if (int.parse(widget.roundno) !=
+                                          event["totalRounds"])
+                                        currentAction = promotion;
                                       phone = temp;
                                       promote = List();
                                       for (int i = 0; i < phone.length; i++) {
@@ -372,6 +393,7 @@ class RoundsPageState extends State<RoundsPage> {
                                     // var body = json.decode(response.body);
                                     // if (body["message"] == "attendance added") {
                                     doc.updateData({"events": events});
+
                                     Navigator.pop(context);
                                     // }
                                   }),
@@ -452,12 +474,89 @@ class RoundsPageState extends State<RoundsPage> {
           ],
         );
       } else if (int.parse(widget.roundno) < event["currentRound"]) {
-        return null;
+        setState(() {
+          tabbed = true;
+        });
+        return TabBarView(
+          controller: tabController,
+          children: <Widget>[
+            ListView.builder(
+              itemCount: event["rounds"][int.parse(widget.roundno) - 1]
+                      ["initial"]
+                  .length,
+              itemBuilder: (context, index) {
+                return Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Card(
+                    child: Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Center(
+                          child: Padding(
+                        padding: const EdgeInsets.all(15.0),
+                        child: Text(
+                          event["rounds"][int.parse(widget.roundno) - 1]
+                              ["initial"][index],
+                          textScaleFactor: 1.5,
+                        ),
+                      )),
+                    ),
+                  ),
+                );
+              },
+            ),
+            ListView.builder(
+              itemCount: event["rounds"][int.parse(widget.roundno) - 1]
+                      ["attendee"]
+                  .length,
+              itemBuilder: (context, index) {
+                return Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Card(
+                    child: Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Center(
+                          child: Padding(
+                        padding: const EdgeInsets.all(15.0),
+                        child: Text(
+                          event["rounds"][int.parse(widget.roundno) - 1]
+                              ["attendee"][index],
+                          textScaleFactor: 1.5,
+                        ),
+                      )),
+                    ),
+                  ),
+                );
+              },
+            ),
+            ListView.builder(
+              itemCount:
+                  event["rounds"][int.parse(widget.roundno)]["initial"].length,
+              itemBuilder: (context, index) {
+                return Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Card(
+                    child: Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Center(
+                          child: Padding(
+                        padding: const EdgeInsets.all(15.0),
+                        child: Text(
+                          event["rounds"][int.parse(widget.roundno)]["initial"]
+                              [index],
+                          textScaleFactor: 1.5,
+                        ),
+                      )),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ],
+        );
       } else if (int.parse(widget.roundno) > event["currentRound"])
         return Center(
           child: Text("Please complete the previous round first"),
         );
-      else if (event["currentRound"] > event["totalRounds"]) return null;
     } else {
       return CircularProgressIndicator();
     }
