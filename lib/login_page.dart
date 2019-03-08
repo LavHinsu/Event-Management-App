@@ -45,19 +45,25 @@ class LoginPageState extends State<LoginPage> {
   } // new Future.delayed(const Duration(seconds: 2));
 
   void signIn() async {
-    // print("phone" + phoneNo + "  password" + password);
-    // var url = "https://immense-waters-72031.herokuapp.com/login";
-    // var temp = {"username": phoneNo, "password": password};
-    // var response = await http.post(url,
-    //     body: json.encode(temp),
-    // );
-    // print(response.body);
-    // var body = json.decode(response.body);
-    // print(body);
-    // if (body.containsKey("token")) {
-    //   print(body);
-    //   prefs.setString("token", body["token"]);
-    //   User.token=body["token"];
+    print("phone" + phoneNo + "  password" + password);
+    var url = "https://udaan19-messenger-api.herokuapp.com/login";
+    var temp = {"username": phoneNo, "password": password};
+    var response = await http.post(url,
+        body: json.encode(temp), headers: {'content-type': 'application/json'});
+    var body = json.decode(response.body);
+//     var client = HttpClient();
+//     var request = await client.postUrl(Uri.parse(url));
+//    request.headers.set('content-type', 'application/json');
+//    request.add(utf8.encode(json.encode(temp)));
+//    var response = await request.close();
+//    String text = await response.transform(utf8.decoder).join();
+//    print(text);
+//     var body = json.decode(response);
+//     print(body);
+    if (body.containsKey("token")) {
+      print(body);
+      prefs.setString("token", body["token"]);
+
       firebaseSigIn();
       showDialog(
           context: context,
@@ -94,10 +100,10 @@ class LoginPageState extends State<LoginPage> {
                   )
                 ],
               ));
-    // } else {
-    //   key.currentState
-    //       .showSnackBar(SnackBar(content: Text("Unable to sign in Try again")));
-    // }
+    } else {
+      key.currentState
+          .showSnackBar(SnackBar(content: Text("Unable to sign in Try again")));
+    }
   }
 
   void firebaseSigIn() async {
@@ -112,10 +118,6 @@ class LoginPageState extends State<LoginPage> {
         User.username = phoneNo;
         prefs.setString('uid', user.uid);
         prefs.setString("username", phoneNo);
-        print(prefs.getString('uid'));
-        print(prefs.getString("username"));
-        print(prefs.getString('uid'));
-        print(prefs.getString("username"));
         Navigator.pushReplacement(
             context, MaterialPageRoute(builder: (context) => MainPage()));
       };

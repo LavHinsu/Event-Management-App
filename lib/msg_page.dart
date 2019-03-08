@@ -1,7 +1,8 @@
-import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
-import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'dart:convert';
 
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 class MsgPage extends StatefulWidget {
   final event;
   final round;
@@ -14,11 +15,21 @@ class _MsgPageState extends State<MsgPage> {
   String txt;
   DateTime dt;
   TimeOfDay td;
+  SharedPreferences prefs;
+  String token;
   bool done = false;
   TextEditingController venue = TextEditingController();
   @override
   void initState() {
     super.initState();
+    SharedPreferences.getInstance()
+      ..then((prefs) {
+        setState(() {
+          this.prefs = prefs;
+          token = prefs.getString("token");
+          print(token);
+        });
+      });
     txt = "";
   }
 
@@ -82,6 +93,7 @@ class _MsgPageState extends State<MsgPage> {
               padding: const EdgeInsets.all(8.0),
               child: TextField(
                 controller: venue,
+                maxLength: 30,
                 decoration: InputDecoration(
                     labelText: "Enter venue", border: OutlineInputBorder()),
               ),
@@ -97,10 +109,14 @@ class _MsgPageState extends State<MsgPage> {
                       setState(() {
                         if (td != null && dt != null && venue.text.isNotEmpty) {
                           done = true;
+
                           txt =
-                              "Dear participant, Round ${widget.round} of ${widget.event} is on ${dt}, ${td} at " +
+                              "Dear participant, Round ${widget
+                                  .round} of ${widget.event["name"]} is on ${dt
+                                  .day}/${dt.month}/${dt.year},${td.hour}:${td
+                                  .minute} at " +
                                   venue.text +
-                                  ". Kindly be present at the venue on time";
+                                  ".Kindly be present at the venue on time";
                         } else
                           done = false;
                       });
@@ -108,10 +124,28 @@ class _MsgPageState extends State<MsgPage> {
                   ),
                   RaisedButton(
                     child: Text("Send"),
-                    onPressed: () {
+                    onPressed: () async {
                       if(done){
-    
-                       //Navigator.popUntil(context, predicate);
+                        var red = {
+                          "contacts": widget.event["rounds"][widget
+                              .round]["initial"],
+                          "eventName": widget.event["name"],
+                          "round": widget.event["currentRound"],
+                          "message": txt
+                        };
+                        var response = await http.post(
+                            "https://udaan19-messenger-api.herokuapp.com/round",
+                            body: json.encode(red),
+                            headers: {
+                              'content-type': 'application/json',
+                              "Authorization": token
+                            });
+                        var body = json.decode(response.body);
+                        print(body);
+                        if (body.containsKey("success")) {
+                          Navigator.pop(context);
+                        }
+                        //Navigator.popUntil(context, predicate);
                       }
                     },
                   )

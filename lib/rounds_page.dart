@@ -1,15 +1,17 @@
 import 'dart:async';
 import 'dart:convert';
-import 'user.dart';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'data_class.dart';
-import 'msg_page.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'msg_page.dart';
+import 'user.dart';
 //import 'package:http/http.dart';
-import 'participant_class.dart';
+
 
 Future<String> getFileData(String path) async {
   return await rootBundle.loadString(path);
@@ -28,6 +30,8 @@ class RoundsPageState extends State<RoundsPage>
     with SingleTickerProviderStateMixin {
   var event;
   int index;
+  String token;
+  SharedPreferences prefs;
   List<dynamic> events;
   List<String> names = List();
   List<dynamic> phone = List();
@@ -39,6 +43,14 @@ class RoundsPageState extends State<RoundsPage>
   @override
   void initState() {
     super.initState();
+    SharedPreferences.getInstance()
+      ..then((prefs) {
+        setState(() {
+          this.prefs = prefs;
+          token = prefs.getString("token");
+          print(token);
+        });
+      });
     print(widget.roundno);
     currentAction = attendance;
 
@@ -63,6 +75,7 @@ class RoundsPageState extends State<RoundsPage>
     });
   }
 
+  final GlobalKey<ScaffoldState> key = GlobalKey<ScaffoldState>();
   final String data = null;
   final FirebaseAuth auth = FirebaseAuth.instance;
   List<String> round = new List();
@@ -72,117 +85,127 @@ class RoundsPageState extends State<RoundsPage>
 
   Widget build(BuildContext context) {
     return Scaffold(
+      key: key,
       bottomNavigationBar: tabbed
           ? Material(
-              color: Colors.blue,
-              child: TabBar(
-                controller: tabController,
-                tabs: <Widget>[
-                  Tab(
-                    text: 'All',
-                  ),
-                  Tab(text: 'Atendees'),
-                  Tab(text: 'Promoted')
-                ],
-              ))
+          color: Colors.blue,
+          child: TabBar(
+            controller: tabController,
+            tabs: <Widget>[
+              Tab(
+                text: 'All',
+              ),
+              Tab(text: 'Atendees'),
+              Tab(text: 'Promoted')
+            ],
+          ))
           : null,
       floatingActionButton: int.parse(widget.roundno) == 1
           ? FloatingActionButton(
-              onPressed: () {
-                if (currentAction == attendance &&
-                    !(int.parse(widget.roundno) < event["currentRound"])) {
-                  TextEditingController name = TextEditingController();
-                  TextEditingController phone = TextEditingController();
-                  TextEditingController branch = TextEditingController();
-                  TextEditingController rec_no = TextEditingController();
-                  TextEditingController year = TextEditingController();
-                  showDialog(
-                    context: context,
-                    builder: (context) => SimpleDialog(
-                          title: Text("Add participant"),
-                          children: <Widget>[
-                            Padding(
-                              padding: const EdgeInsets.only(
-                                  top: 12.0, left: 12.0, right: 12.0),
-                              child: TextField(
-                                decoration: InputDecoration(labelText: "Name"),
-                                controller: name,
-                                keyboardType: TextInputType.text,
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(
-                                  top: 12.0, left: 12.0, right: 12.0),
-                              child: TextField(
-                                decoration:
-                                    InputDecoration(labelText: "Phone number"),
-                                maxLength: 10,
-                                controller: phone,
-                                keyboardType: TextInputType.phone,
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(
-                                  top: 12.0, left: 12.0, right: 12.0),
-                              child: TextField(
-                                decoration:
-                                    InputDecoration(labelText: "Branch"),
-                                controller: branch,
-                                keyboardType: TextInputType.text,
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(
-                                  top: 12.0, left: 12.0, right: 12.0),
-                              child: TextField(
-                                decoration: InputDecoration(labelText: "Year"),
-                                maxLength: 1,
-                                controller: year,
-                                keyboardType: TextInputType.number,
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(
-                                  top: 12.0, left: 12.0, right: 12.0),
-                              child: FlatButton(
-                                onPressed: () async {
-                                  // if (year.text.isNotEmpty &&
-                                  //     name.text.isNotEmpty &&
-                                  //     branch.text.isNotEmpty &&
-                                  //     phone.text.isNotEmpty) {
-                                  //   var body = {
-                                  //     "name": name.text,
-                                  //     "phone": phone.text,
-                                  //     "branch": branch.text,
-                                  //     "year": year.text,
-                                  //     "events": {
-                                  //       "rec_no": "123456",
-                                  //       "eventName": event["name"],
-                                  //       "code": "12345678"
-                                  //     }
-                                  //   };
-                                  //   String json1 = json.encode(body);
-                                  //   var response = await http.post(
-                                  //     "https://udaan19-messenger-api.herokuapp.com/addParticipant",
-                                  //     body: json1,
-                                  //     // headers: {
-                                  //     //   "Authorization" :token
-                                  //     // }
-                                  //   );
-                                  //   print(json.decode(response.body));
-                                  Navigator.pop(context);
-                                  // }
-                                },
-                                child: Text("Confirm"),
-                              ),
-                            ),
-                          ],
-                        ),
-                  );
-                }
-              },
-              child: Icon(Icons.add),
-            )
+        onPressed: () {
+          if (currentAction == attendance &&
+              !(int.parse(widget.roundno) < event["currentRound"])) {
+            TextEditingController name = TextEditingController();
+            TextEditingController phone = TextEditingController();
+            TextEditingController branch = TextEditingController();
+            TextEditingController rec_no = TextEditingController();
+            TextEditingController year = TextEditingController();
+            showDialog(
+              context: context,
+              builder: (context) => SimpleDialog(
+                title: Text("Add participant"),
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.only(
+                        top: 12.0, left: 12.0, right: 12.0),
+                    child: TextField(
+                      decoration: InputDecoration(labelText: "Name"),
+                      controller: name,
+                      keyboardType: TextInputType.text,
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(
+                        top: 12.0, left: 12.0, right: 12.0),
+                    child: TextField(
+                      decoration:
+                      InputDecoration(labelText: "Phone number"),
+                      maxLength: 10,
+                      controller: phone,
+                      keyboardType: TextInputType.phone,
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(
+                        top: 12.0, left: 12.0, right: 12.0),
+                    child: TextField(
+                      decoration:
+                      InputDecoration(labelText: "Branch"),
+                      controller: branch,
+                      keyboardType: TextInputType.text,
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(
+                        top: 12.0, left: 12.0, right: 12.0),
+                    child: TextField(
+                      decoration: InputDecoration(labelText: "Year"),
+                      maxLength: 1,
+                      controller: year,
+                      keyboardType: TextInputType.number,
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(
+                        top: 12.0, left: 12.0, right: 12.0),
+                    child: FlatButton(
+                      onPressed: () async {
+                        if (year.text.isNotEmpty &&
+                            name.text.isNotEmpty &&
+                            branch.text.isNotEmpty &&
+                            phone.text.isNotEmpty) {
+                          var body = {
+                            "name": name.text,
+                            "phone": phone.text,
+                            "branch": branch.text,
+                            "year": year.text,
+                            "events": {
+                              "rec_no": "123456",
+                              "eventName": event["name"],
+                              "code": "12345678"
+                            }
+                          };
+                          String json1 = json.encode(body);
+                          var response = await http.post(
+                              "https://udaan19-messenger-api.herokuapp.com/addParticipant",
+                              body: json1,
+                              headers: {
+                                'content-type': 'application/json',
+                                "Authorization": token
+                              });
+                          var zed = json.decode(response.body);
+                          print(json.decode(response.body));
+                          if (zed.containsKey("success"))
+                            key.currentState.showSnackBar(SnackBar(
+                                content: Text(
+                                    "Participant Successfully registered")));
+                          Navigator.pop(context);
+                        } else {
+                          key.currentState.showSnackBar(SnackBar(
+                              content: Text(
+                                  "Participant Successfully registered")));
+                        }
+                      },
+                      child: Text("Confirm"),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }
+        },
+        child: Icon(Icons.add),
+      )
           : null,
       appBar: AppBar(
         leading: BackButton(),
@@ -232,7 +255,7 @@ class RoundsPageState extends State<RoundsPage>
       if (int.parse(widget.roundno) < event["currentRound"]) {
         tabbed = true;
       }
-            loaded = true;
+      loaded = true;
     });
   }
 
@@ -287,31 +310,32 @@ class RoundsPageState extends State<RoundsPage>
                                                     right: 12.0),
                                                 child: FlatButton(
                                                   onPressed: () async {
-                                                    // var response = await http.post(
-                                                    //     "https://udaan19-messenger-api.herokuapp.com/get",
-                                                    //     body: {
-                                                    //       "phone": phone[index]
-                                                    //           .toString()
-                                                    //     }
-                                                    //     // headers: {
-                                                    //     //   "Authorization": token
-                                                    //     // }
-                                                    //     );
-                                                    // var body = json
-                                                    //     .decode(response.body);
-                                                    // body["name"] = name.text;
-                                                    // response = await http.put(
-                                                    //   "https://udaan19-messenger-api.herokuapp.com/update",
-                                                    //   body: body,
-                                                    //   // headers: {
-                                                    //   //   "Authorization": token
-                                                    //   // }
-                                                    // );
-                                                    // body = json
-                                                    //     .decode(response.body);
-                                                    // if (body["message"] ==
-                                                    //     "Participant updated") {
-                                                    // } else {}
+                                                    var response = await http
+                                                        .post(
+                                                        "https://udaan19-messenger-api.herokuapp.com/get",
+                                                        body: {
+                                                          "phone": phone[index]
+                                                              .toString()
+                                                        },
+                                                        headers: {
+                                                          'content-type':
+                                                          'application/json',
+                                                          "Authorization": token
+                                                        });
+                                                    var body = json
+                                                        .decode(response.body);
+                                                    body["name"] = name.text;
+                                                    response = await http.put(
+                                                      "https://udaan19-messenger-api.herokuapp.com/update",
+                                                      body: body,
+                                                      // headers: {
+                                                      //   "Authorization": token
+                                                      // }
+                                                    );
+                                                    body = json
+                                                        .decode(response.body);
+                                                    if (body["message"] ==
+                                                        "Participant updated") {} else {}
                                                   },
                                                   child: Text("Confirm"),
                                                 ),
@@ -377,25 +401,26 @@ class RoundsPageState extends State<RoundsPage>
                                         ["attendee"] = phone;
                                     events[index] = event;
 
-                                    // var red = {
-                                    //       "contacts": phone,
-                                    //       "eventName": event["name"],
-                                    //       "theRound": event["currentRound"]
-                                    //     };
-                                    // print(json.encode(red));
-                                    // var response = await http.post(
-                                    //     "https://udaan19-messenger-api.herokuapp.com/attendance",
-                                    //     body: json.encode(red),
-                                    //     // headers: {
-                                    //     //   "Authorization": token
-                                    //     // }
-                                    //     );
-                                    // var body = json.decode(response.body);
-                                    // if (body["message"] == "attendance added") {
-                                    doc.updateData({"events": events});
-
-                                    Navigator.pop(context);
-                                    // }
+                                    var red = {
+                                      "contacts": phone,
+                                      "eventName": event["name"],
+                                      "theRound":
+                                      event["currentRound"].toString()
+                                    };
+                                    print(json.encode(red));
+                                    var response = await http.post(
+                                        "https://udaan19-messenger-api.herokuapp.com/attendance",
+                                        body: json.encode(red),
+                                        headers: {
+                                          'content-type': 'application/json',
+                                          "Authorization": token
+                                        });
+                                    var body = json.decode(response.body);
+                                    print(body);
+                                    if (body["message"] == "attendance added") {
+                                      doc.updateData({"events": events});
+                                      Navigator.pop(context);
+                                    }
                                   }),
                             ],
                           ));
@@ -427,27 +452,14 @@ class RoundsPageState extends State<RoundsPage>
                                       event["currentRound"] =
                                           int.parse(widget.roundno) + 1;
                                       events[index] = event;
-                                      // var red = {
-                                      //       "contacts": phone,
-                                      //       "eventName": event["name"],
-                                      //       "round": event["currentRound"]
-                                      //     };
-                                      // var response = await http.post(
-                                      //     "https://udaan19-messenger-api.herokuapp.com/round",
-                                      //     body: json.encode(red),
-                                      //     // headers: {
-                                      //     //   "Authorization": token
-                                      //     // }
-                                      //     );
-                                      // var body = json.decode(response.body);
-                                      // var sent = body["success"];
+
                                       doc.updateData({"events": events});
                                       Navigator.pop(context);
                                       Navigator.push(
                                           context,
                                           MaterialPageRoute(
                                               builder: (context) => MsgPage(
-                                                    event: event["name"],
+                                                event: event,
                                                     round:
                                                         event["currentRound"],
                                                   )));
