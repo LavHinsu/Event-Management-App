@@ -12,7 +12,6 @@ import 'msg_page.dart';
 import 'user.dart';
 //import 'package:http/http.dart';
 
-
 Future<String> getFileData(String path) async {
   return await rootBundle.loadString(path);
 }
@@ -20,7 +19,10 @@ Future<String> getFileData(String path) async {
 class RoundsPage extends StatefulWidget {
   final String eventid;
   String roundno;
-  RoundsPage({Key key, @required this.eventid, this.roundno}) : super(key: key);
+  final Map<String, String> names;
+
+  RoundsPage({Key key, @required this.eventid, this.roundno, this.names})
+      : super(key: key);
 
   @override
   RoundsPageState createState() => new RoundsPageState();
@@ -31,15 +33,17 @@ class RoundsPageState extends State<RoundsPage>
   var event;
   int index;
   String token;
+  bool nameBool = false;
   SharedPreferences prefs;
   List<dynamic> events;
-  List<String> names = List();
+  List<dynamic> names = List();
   List<dynamic> phone = List();
   List<bool> inputs = new List<bool>();
   List<bool> attend = List();
   List<bool> promote = List();
   TabController tabController;
   bool editmode = false;
+
   @override
   void initState() {
     super.initState();
@@ -48,25 +52,28 @@ class RoundsPageState extends State<RoundsPage>
         setState(() {
           this.prefs = prefs;
           token = prefs.getString("token");
-          print(token);
+//          print(token);
         });
       });
-    print(widget.roundno);
+//    print(widget.roundno);
     currentAction = attendance;
 
     tabController = TabController(vsync: this, length: 3);
     //print(widget.eventid);
-    doc = Firestore.instance.collection("managers").document(username);
+    manager = Firestore.instance.collection("managers").document(username);
+    participant = Firestore.instance.collection("participant");
     fetchRounds();
   }
 
-  DocumentReference doc;
+  DocumentReference manager;
+  CollectionReference participant;
   Text attendance = Text(
     "Confirm Attendance",
     style: TextStyle(fontSize: 18.0),
   );
   Text promotion = Text("Confirm Promotion", style: TextStyle(fontSize: 18.0));
   Text currentAction;
+
   void itemChange(bool val, int index) {
     setState(() {
       if (currentAction == attendance)
@@ -108,99 +115,100 @@ class RoundsPageState extends State<RoundsPage>
             TextEditingController name = TextEditingController();
             TextEditingController phone = TextEditingController();
             TextEditingController branch = TextEditingController();
-            TextEditingController rec_no = TextEditingController();
             TextEditingController year = TextEditingController();
             showDialog(
               context: context,
-              builder: (context) => SimpleDialog(
-                title: Text("Add participant"),
-                children: <Widget>[
-                  Padding(
-                    padding: const EdgeInsets.only(
-                        top: 12.0, left: 12.0, right: 12.0),
-                    child: TextField(
-                      decoration: InputDecoration(labelText: "Name"),
-                      controller: name,
-                      keyboardType: TextInputType.text,
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(
-                        top: 12.0, left: 12.0, right: 12.0),
-                    child: TextField(
-                      decoration:
-                      InputDecoration(labelText: "Phone number"),
-                      maxLength: 10,
-                      controller: phone,
-                      keyboardType: TextInputType.phone,
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(
-                        top: 12.0, left: 12.0, right: 12.0),
-                    child: TextField(
-                      decoration:
-                      InputDecoration(labelText: "Branch"),
-                      controller: branch,
-                      keyboardType: TextInputType.text,
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(
-                        top: 12.0, left: 12.0, right: 12.0),
-                    child: TextField(
-                      decoration: InputDecoration(labelText: "Year"),
-                      maxLength: 1,
-                      controller: year,
-                      keyboardType: TextInputType.number,
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(
-                        top: 12.0, left: 12.0, right: 12.0),
-                    child: FlatButton(
-                      onPressed: () async {
-                        if (year.text.isNotEmpty &&
-                            name.text.isNotEmpty &&
-                            branch.text.isNotEmpty &&
-                            phone.text.isNotEmpty) {
-                          var body = {
-                            "name": name.text,
-                            "phone": phone.text,
-                            "branch": branch.text,
-                            "year": year.text,
-                            "events": {
-                              "rec_no": "123456",
-                              "eventName": event["name"],
-                              "code": "12345678"
+              builder: (context) =>
+                  SimpleDialog(
+                    title: Text("Add participant"),
+                    children: <Widget>[
+                      Padding(
+                        padding: const EdgeInsets.only(
+                            top: 12.0, left: 12.0, right: 12.0),
+                        child: TextField(
+                          decoration: InputDecoration(labelText: "Name"),
+                          controller: name,
+                          keyboardType: TextInputType.text,
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(
+                            top: 12.0, left: 12.0, right: 12.0),
+                        child: TextField(
+                          decoration:
+                          InputDecoration(labelText: "Phone number"),
+                          maxLength: 10,
+                          controller: phone,
+                          keyboardType: TextInputType.phone,
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(
+                            top: 12.0, left: 12.0, right: 12.0),
+                        child: TextField(
+                          decoration:
+                          InputDecoration(labelText: "Branch"),
+                          controller: branch,
+                          keyboardType: TextInputType.text,
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(
+                            top: 12.0, left: 12.0, right: 12.0),
+                        child: TextField(
+                          decoration: InputDecoration(labelText: "Year"),
+                          maxLength: 1,
+                          controller: year,
+                          keyboardType: TextInputType.number,
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(
+                            top: 12.0, left: 12.0, right: 12.0),
+                        child: FlatButton(
+                          onPressed: () async {
+                            if (year.text.isNotEmpty &&
+                                name.text.isNotEmpty &&
+                                branch.text.isNotEmpty &&
+                                phone.text.isNotEmpty) {
+                              var body = {
+                                "name": name.text,
+                                "phone": phone.text,
+                                "branch": branch.text,
+                                "year": year.text,
+                                "events": {
+                                  "rec_no": "123456",
+                                  "eventName": event["name"],
+                                  "code": "12345678"
+                                }
+                              };
+                              String json1 = json.encode(body);
+                              var response = await http.post(
+                                  "https://udaan19-messenger-api.herokuapp.com/addParticipant",
+                                  body: json1,
+                                  headers: {
+                                    'content-type': 'application/json',
+                                    "Authorization": token
+                                  });
+                              var zed = json.decode(response.body);
+                              print(json.decode(response.body));
+                              if (zed.containsKey("success"))
+                                key.currentState.showSnackBar(SnackBar(
+                                    content: Text(
+                                        "Participant Successfully registered")));
+
+                              Navigator.pop(context);
+                            } else {
+                              key.currentState.showSnackBar(SnackBar(
+                                  content: Text(
+                                      "Participant Successfully registered")));
                             }
-                          };
-                          String json1 = json.encode(body);
-                          var response = await http.post(
-                              "https://udaan19-messenger-api.herokuapp.com/addParticipant",
-                              body: json1,
-                              headers: {
-                                'content-type': 'application/json',
-                                "Authorization": token
-                              });
-                          var zed = json.decode(response.body);
-                          print(json.decode(response.body));
-                          if (zed.containsKey("success"))
-                            key.currentState.showSnackBar(SnackBar(
-                                content: Text(
-                                    "Participant Successfully registered")));
-                          Navigator.pop(context);
-                        } else {
-                          key.currentState.showSnackBar(SnackBar(
-                              content: Text(
-                                  "Participant Successfully registered")));
-                        }
-                      },
-                      child: Text("Confirm"),
-                    ),
+                          },
+                          child: Text("Confirm"),
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
             );
           }
         },
@@ -234,15 +242,31 @@ class RoundsPageState extends State<RoundsPage>
   }
 
   fetchRounds() async {
-    events = (await doc.snapshots().first).data["events"];
+    events = (await manager
+        .snapshots()
+        .first).data["events"];
 
     for (int i = 0; i < events.length; i++) {
       if (events[i]["id"] == widget.eventid) {
         index = i;
         event = events[i];
-        //print(event["rounds"][int.parse(widget.roundno)-1]["initial"].toString());
+
         phone = event["rounds"][int.parse(widget.roundno) - 1]["initial"];
-        //print("phone : " + phone.toString());
+//        print(phone[0]);
+        await Future.forEach(phone, (i) async {
+          participant.document(i).get().then((d) {
+            names.add(d["name"]);
+          });
+        }).whenComplete(() {
+          print(names);
+          setState(() {
+            loaded = true;
+            nameBool = true;
+          });
+        });
+
+        print(names);
+        //print("phone : "   + phone.toString());
         for (int j = 0; j < phone.length; j++) {
           attend.add(false);
           promote.add(false);
@@ -255,184 +279,135 @@ class RoundsPageState extends State<RoundsPage>
       if (int.parse(widget.roundno) < event["currentRound"]) {
         tabbed = true;
       }
-      loaded = true;
     });
   }
 
   Widget _rounds() {
     if (loaded) {
-      if (int.parse(widget.roundno) == event["currentRound"]) {
-        return Column(
-          children: <Widget>[
-            Expanded(
-              child: ListView.builder(
-                  itemCount: currentAction == attendance
-                      ? attend.length
-                      : promote.length,
-                  itemBuilder: (context, index) {
-                    return Card(
-                      child: Container(
-                        padding: EdgeInsets.all(10.0),
-                        child: Column(
-                          children: <Widget>[
-                            CheckboxListTile(
-                              value: currentAction == attendance
-                                  ? attend[index]
-                                  : promote[index],
-                              title: GestureDetector(
-                                onDoubleTap: () {
-                                  TextEditingController name =
-                                      TextEditingController();
+      if (event["currentRound"] > event["totalRounds"]) {
+        return null;
+      } else if (int.parse(widget.roundno) == event["currentRound"]) {
+        if (nameBool) {
+          return Column(
+            children: <Widget>[
+              Expanded(
+                child: ListView.builder(
+                    itemCount: currentAction == attendance
+                        ? attend.length
+                        : promote.length,
+                    itemBuilder: (context, index) {
+                      return Card(
+                        child: Container(
+                          padding: EdgeInsets.all(10.0),
+                          child: Column(
+                            children: <Widget>[
+                              CheckboxListTile(
+                                value: currentAction == attendance
+                                    ? attend[index]
+                                    : promote[index],
+                                title: GestureDetector(
+                                  onDoubleTap: () {
+                                    TextEditingController name =
+                                    TextEditingController();
 
-                                  showDialog(
-                                      context: context,
-                                      builder: (_) => SimpleDialog(
-                                            title: Text(
-                                                "Change participant details"),
-                                            children: <Widget>[
-                                              Padding(
-                                                padding: const EdgeInsets.only(
-                                                    top: 12.0,
-                                                    left: 12.0,
-                                                    right: 12.0),
-                                                child: TextField(
-                                                  decoration: InputDecoration(
-                                                      labelText: "Name"),
-                                                  controller: name,
-                                                  keyboardType:
-                                                      TextInputType.text,
+                                    showDialog(
+                                        context: context,
+                                        builder: (_) =>
+                                            SimpleDialog(
+                                              title: Text(
+                                                  "Change participant details"),
+                                              children: <Widget>[
+                                                Padding(
+                                                  padding:
+                                                  const EdgeInsets.only(
+                                                      top: 12.0,
+                                                      left: 12.0,
+                                                      right: 12.0),
+                                                  child: TextField(
+                                                    decoration: InputDecoration(
+                                                        labelText: "Name"),
+                                                    controller: name,
+                                                    keyboardType:
+                                                    TextInputType.text,
+                                                  ),
                                                 ),
-                                              ),
-                                              Padding(
-                                                padding: const EdgeInsets.only(
-                                                    top: 12.0,
-                                                    left: 12.0,
-                                                    right: 12.0),
-                                                child: FlatButton(
-                                                  onPressed: () async {
-                                                    var response = await http
-                                                        .post(
-                                                        "https://udaan19-messenger-api.herokuapp.com/get",
-                                                        body: {
-                                                          "phone": phone[index]
-                                                              .toString()
-                                                        },
-                                                        headers: {
-                                                          'content-type':
-                                                          'application/json',
-                                                          "Authorization": token
-                                                        });
-                                                    var body = json
-                                                        .decode(response.body);
-                                                    body["name"] = name.text;
-                                                    response = await http.put(
-                                                      "https://udaan19-messenger-api.herokuapp.com/update",
-                                                      body: body,
-                                                      // headers: {
-                                                      //   "Authorization": token
-                                                      // }
-                                                    );
-                                                    body = json
-                                                        .decode(response.body);
-                                                    if (body["message"] ==
-                                                        "Participant updated") {} else {}
-                                                  },
-                                                  child: Text("Confirm"),
+                                                Padding(
+                                                  padding:
+                                                  const EdgeInsets.only(
+                                                      top: 12.0,
+                                                      left: 12.0,
+                                                      right: 12.0),
+                                                  child: FlatButton(
+                                                    onPressed: () async {
+                                                      var response = await http
+                                                          .post(
+                                                          "https://udaan19-messenger-api.herokuapp.com/get",
+                                                          body: json.encode({
+                                                            "phone": phone[index]
+                                                                .toString()
+                                                          }),
+                                                          headers: {
+                                                            'content-type':
+                                                            'application/json',
+                                                            "Authorization":
+                                                            token
+                                                          });
+                                                      var body = json.decode(
+                                                          response.body);
+                                                      body["name"] = name.text;
+                                                      response = await http.put(
+                                                          "https://udaan19-messenger-api.herokuapp.com/update",
+                                                          body: json.encode(
+                                                              body),
+                                                          headers: {
+                                                            'content-type':
+                                                            'application/json',
+                                                            "Authorization":
+                                                            token
+                                                          });
+                                                      body = json.decode(
+                                                          response.body);
+                                                      if (body["message"] ==
+                                                          "Participant updated") {} else {}
+                                                    },
+                                                    child: Text("Confirm"),
+                                                  ),
                                                 ),
-                                              ),
-                                            ],
-                                          ));
-                                },
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: <Widget>[
-                                    Text('Participant name'),
-                                    Text(phone[index])
-                                  ],
+                                              ],
+                                            ));
+                                  },
+                                  child: Column(
+                                    crossAxisAlignment:
+                                    CrossAxisAlignment.start,
+                                    children: <Widget>[
+                                      Text("dfdsf"),
+                                      Text(phone[index])
+                                    ],
+                                  ),
                                 ),
+                                onChanged: editmode
+                                    ? (bool val) {
+                                  itemChange(val, index);
+                                }
+                                    : null,
                               ),
-                              onChanged: editmode
-                                  ? (bool val) {
-                                      itemChange(val, index);
-                                    }
-                                  : null,
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  }),
-            ),
-            RaisedButton(
-              onPressed: () {
-                if (currentAction == attendance) {
-                  showDialog(
-                      context: context,
-                      builder: (context) => AlertDialog(
-                            title: const Text(
-                                'did these participants attended this round?'),
-                            content:
-                                Text('NOTICE: This action cannot be undone'),
-                            actions: <Widget>[
-                              FlatButton(
-                                child: Text('Cancel'),
-                                onPressed: () => Navigator.pop(context),
-                              ),
-                              FlatButton(
-                                  child: Text('Confirm'),
-                                  onPressed: () async {
-                                    List<String> temp = List();
-                                    for (int i = 0; i < attend.length; i++) {
-                                      if (attend[i]) temp.add(phone[i]);
-                                    }
-                                    // print(temp);
-                                    setState(() {
-                                      if (int.parse(widget.roundno) !=
-                                          event["totalRounds"])
-                                        currentAction = promotion;
-                                      phone = temp;
-                                      promote = List();
-                                      for (int i = 0; i < phone.length; i++) {
-                                        promote.add(false);
-                                      }
-                                    });
-                                    event["rounds"]
-                                            [int.parse(widget.roundno) - 1]
-                                        ["attendee"] = phone;
-                                    events[index] = event;
-
-                                    var red = {
-                                      "contacts": phone,
-                                      "eventName": event["name"],
-                                      "theRound":
-                                      event["currentRound"].toString()
-                                    };
-                                    print(json.encode(red));
-                                    var response = await http.post(
-                                        "https://udaan19-messenger-api.herokuapp.com/attendance",
-                                        body: json.encode(red),
-                                        headers: {
-                                          'content-type': 'application/json',
-                                          "Authorization": token
-                                        });
-                                    var body = json.decode(response.body);
-                                    print(body);
-                                    if (body["message"] == "attendance added") {
-                                      doc.updateData({"events": events});
-                                      Navigator.pop(context);
-                                    }
-                                  }),
                             ],
-                          ));
-                } else {
-                  if (int.parse(widget.roundno) != event["totalRounds"])
+                          ),
+                        ),
+                      );
+                    }),
+              ),
+              RaisedButton(
+                onPressed: () {
+                  if (currentAction == attendance) {
                     showDialog(
                         context: context,
-                        builder: (context) => AlertDialog(
+                        builder: (context) =>
+                            AlertDialog(
                               title: const Text(
-                                  'Are you sure you want to promote these users?'),
+                                  'did these participants attended this round?'),
                               content:
-                                  Text('NOTICE: This action cannot be undone'),
+                              Text('NOTICE: This action cannot be undone'),
                               actions: <Widget>[
                                 FlatButton(
                                   child: Text('Cancel'),
@@ -442,49 +417,123 @@ class RoundsPageState extends State<RoundsPage>
                                     child: Text('Confirm'),
                                     onPressed: () async {
                                       List<String> temp = List();
-                                      for (int i = 0; i < promote.length; i++) {
-                                        if (promote[i]) temp.add(phone[i]);
+                                      for (int i = 0; i < attend.length; i++) {
+                                        if (attend[i]) temp.add(phone[i]);
                                       }
-                                      phone = temp;
-                                      // print(phone);
-                                      event["rounds"][int.parse(widget.roundno)]
-                                          ["initial"] = phone;
-                                      event["currentRound"] =
-                                          int.parse(widget.roundno) + 1;
+                                      // print(temp);
+                                      setState(() {
+                                        if (int.parse(widget.roundno) !=
+                                            event["totalRounds"])
+                                          currentAction = promotion;
+                                        phone = temp;
+                                        promote = List();
+                                        for (int i = 0; i < phone.length; i++) {
+                                          promote.add(false);
+                                        }
+                                      });
+                                      event["rounds"]
+                                      [int.parse(widget.roundno) - 1]
+                                      ["attendee"] = phone;
                                       events[index] = event;
 
-                                      doc.updateData({"events": events});
-                                      Navigator.pop(context);
-                                      Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (context) => MsgPage(
-                                                event: event,
-                                                    round:
-                                                        event["currentRound"],
-                                                  )));
+                                      var red = {
+                                        "contacts": phone,
+                                        "eventName": event["name"],
+                                        "theRound":
+                                        event["currentRound"].toString()
+                                      };
+                                      print(json.encode(red));
+                                      var response = await http.post(
+                                          "https://udaan19-messenger-api.herokuapp.com/attendance",
+                                          body: json.encode(red),
+                                          headers: {
+                                            'content-type': 'application/json',
+                                            "Authorization": token
+                                          });
+                                      var body = json.decode(response.body);
+                                      print(body);
+                                      if (body["message"] ==
+                                          "attendance added") {
+                                        manager.updateData({"events": events});
+                                        Navigator.pop(context);
+                                      }
                                     }),
                               ],
                             ));
-                  else {
-                    Navigator.pop(context);
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => RoundsPage(
-                                  eventid: widget.eventid,
-                                  roundno: '${int.parse(widget.roundno) + 1}',
-                                )));
+                  } else {
+                    if (int.parse(widget.roundno) != event["totalRounds"])
+                      showDialog(
+                          context: context,
+                          builder: (context) =>
+                              AlertDialog(
+                                title: const Text(
+                                    'Are you sure you want to promote these users?'),
+                                content: Text(
+                                    'NOTICE: This action cannot be undone'),
+                                actions: <Widget>[
+                                  FlatButton(
+                                    child: Text('Cancel'),
+                                    onPressed: () => Navigator.pop(context),
+                                  ),
+                                  FlatButton(
+                                      child: Text('Confirm'),
+                                      onPressed: () async {
+                                        List<String> temp = List();
+                                        for (int i = 0;
+                                        i < promote.length;
+                                        i++) {
+                                          if (promote[i]) temp.add(phone[i]);
+                                        }
+                                        setState(() {
+                                          phone = temp;
+                                        });
+                                        // print(phone);
+//                                      event["rounds"][int.parse(widget.roundno)]
+//                                          ["initial"] = phone;
+//                                      event["currentRound"] =
+//                                          int.parse(widget.roundno) + 1;
+//                                      events[index] = event;
+//
+//                                      doc.updateData({"events": events});
+                                        Navigator.pop(context);
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    MsgPage(
+                                                      events: events,
+                                                      index: index,
+                                                      phone: phone,
+                                                      event: event,
+                                                      round: event[
+                                                      "currentRound"] +
+                                                          1,
+                                                    )));
+                                      }),
+                                ],
+                              ));
+                    else {
+                      Navigator.pop(context);
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  RoundsPage(
+                                    eventid: widget.eventid,
+                                    roundno: '${int.parse(widget.roundno) + 1}',
+                                  )));
+                    }
                   }
-                }
-              },
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: currentAction,
-              ),
-            )
-          ],
-        );
+                },
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: currentAction,
+                ),
+              )
+            ],
+          );
+        } else
+          return CircularProgressIndicator();
       } else if (int.parse(widget.roundno) < event["currentRound"]) {
         setState(() {
           tabbed = true;

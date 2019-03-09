@@ -1,10 +1,10 @@
 import 'dart:convert';
+
 import 'package:event_app/rounds_page.dart';
 import 'package:flutter/material.dart';
+
 import 'data_class.dart';
-import 'user.dart';
 import 'rounds_page.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 class RoundList extends StatefulWidget {
   final String eventid;
@@ -22,16 +22,15 @@ class RoundListState extends State<RoundList> {
     fetchnoofrounds();
   }
 
-  bool loaded =false;
+  bool loaded = false;
   int noofrounds;
+
   fetchnoofrounds() async {
-  
     String json = await getFileData("assets/events.json");
     var events = jsonDecode(json);
     EventsList event = new EventsList.fromJson(events);
-    
-    for (int i = 0; i < events.length; i++) {
 
+    for (int i = 0; i < events.length; i++) {
       if (event.events[i].id == widget.eventid) {
         noofrounds = event.events[i].rounds.length;
       }
@@ -58,16 +57,27 @@ class RoundListState extends State<RoundList> {
     if (loaded) {
       return Center(
         child: ListView.builder(
-            itemCount: noofrounds  ,
+            itemCount: noofrounds,
             itemBuilder: (context, index) {
               return GestureDetector(
-                onTap: () {
+                onTap: () async {
+//                  var x = (await Firestore.instance
+//                      .collection("managers")
+//                      .document(username)
+//                      .snapshots();
+////                      .first).data["events"]["rounds"][index]["initial"];
+//                  Map<String,String> names = Map();
+//                  for(final x in phones){
+////                    names.putIfAbsent(x.toString(),Firestore.instance.collection("participant").document(x).snapshots() )
+//                  }
                   Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => RoundsPage(
+                          builder: (context) =>
+                              RoundsPage(
                                 eventid: widget.eventid,
                                 roundno: '${index + 1}',
+//                                names: names,
                               )));
                 },
                 child: Card(
