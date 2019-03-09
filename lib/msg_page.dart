@@ -41,6 +41,7 @@ class _MsgPageState extends State<MsgPage> {
         });
       });
     txt = "";
+    //(widget.phone + "  "+ widget.index + " " + widget.round  );
     doc = Firestore.instance.collection("managers").document(username);
   }
 
@@ -123,14 +124,14 @@ class _MsgPageState extends State<MsgPage> {
                               done = true;
 
                               txt =
-                                  "Dear participant Round ${widget
-                                      .round} of ${widget
+                                  "Dear Participant, Round ${widget
+                                      .round + 1 } of ${widget
                                       .event["name"]} is on ${dt
                                       .day}/${dt.month}/${dt.year} ${td
                                       .hour}:${td
                                       .minute} at " +
                                       venue.text +
-                                      ".Kindly be present at the venue on time";
+                                      ". Kindly be present at the venue on time.";
                             } else
                               done = false;
                           });

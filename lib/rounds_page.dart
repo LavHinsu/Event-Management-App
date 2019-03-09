@@ -113,7 +113,7 @@ class RoundsPageState extends State<RoundsPage>
           if (currentAction == attendance &&
               !(int.parse(widget.roundno) < event["currentRound"])) {
             TextEditingController name = TextEditingController();
-            TextEditingController phone = TextEditingController();
+            TextEditingController phoneT = TextEditingController();
             TextEditingController branch = TextEditingController();
             TextEditingController year = TextEditingController();
             showDialog(
@@ -138,7 +138,7 @@ class RoundsPageState extends State<RoundsPage>
                           decoration:
                           InputDecoration(labelText: "Phone number"),
                           maxLength: 10,
-                          controller: phone,
+                          controller: phoneT,
                           keyboardType: TextInputType.phone,
                         ),
                       ),
@@ -170,10 +170,10 @@ class RoundsPageState extends State<RoundsPage>
                             if (year.text.isNotEmpty &&
                                 name.text.isNotEmpty &&
                                 branch.text.isNotEmpty &&
-                                phone.text.isNotEmpty) {
+                                phoneT.text.isNotEmpty) {
                               var body = {
                                 "name": name.text,
-                                "phone": phone.text,
+                                "phone": phoneT.text,
                                 "branch": branch.text,
                                 "year": year.text,
                                 "events": {
@@ -196,7 +196,17 @@ class RoundsPageState extends State<RoundsPage>
                                 key.currentState.showSnackBar(SnackBar(
                                     content: Text(
                                         "Participant Successfully registered")));
-
+                              setState(() {
+                                List<dynamic> temp = List();
+                                phone.forEach((i) => temp.add(i));
+                                temp.add(phoneT.text);
+                                phone = temp;
+                                event["rounds"]
+                                [int.parse(widget.roundno) - 1]
+                                ["initial"] = temp;
+                                events[index] = event;
+                                manager.updateData({"events": events});
+                              });
                               Navigator.pop(context);
                             } else {
                               key.currentState.showSnackBar(SnackBar(
@@ -339,12 +349,12 @@ class RoundsPageState extends State<RoundsPage>
                                                       right: 12.0),
                                                   child: FlatButton(
                                                     onPressed: () async {
+                                                      print(phone[index]);
                                                       var response = await http
                                                           .post(
                                                           "https://udaan19-messenger-api.herokuapp.com/get",
                                                           body: json.encode({
                                                             "phone": phone[index]
-                                                                .toString()
                                                           }),
                                                           headers: {
                                                             'content-type':
@@ -354,6 +364,7 @@ class RoundsPageState extends State<RoundsPage>
                                                           });
                                                       var body = json.decode(
                                                           response.body);
+                                                      print(body);
                                                       body["name"] = name.text;
                                                       response = await http.put(
                                                           "https://udaan19-messenger-api.herokuapp.com/update",
@@ -367,6 +378,7 @@ class RoundsPageState extends State<RoundsPage>
                                                           });
                                                       body = json.decode(
                                                           response.body);
+                                                      print(body);
                                                       if (body["message"] ==
                                                           "Participant updated") {} else {}
                                                     },
@@ -506,8 +518,7 @@ class RoundsPageState extends State<RoundsPage>
                                                       phone: phone,
                                                       event: event,
                                                       round: event[
-                                                      "currentRound"] +
-                                                          1,
+                                                      "currentRound"]
                                                     )));
                                       }),
                                 ],
