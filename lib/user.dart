@@ -5,9 +5,10 @@ import 'package:flutter/services.dart' show rootBundle;
 
 import 'data_class.dart';
 
-String username, password;
+String username,
+    password,
+    app_id = "f9af5e48-fbb2-43f8-882b-b82a6bfa8d62";
 FirebaseUser user;
-
 Future<String> getFileData(String path) async {
   return await rootBundle.loadString(path);
 }
@@ -31,8 +32,7 @@ Future<Map<String, Participant>> fetchNames(List<dynamic> phone) async {
   Map<String, Participant> names = Map();
   ParticipantList list = ParticipantList.fromJson(events);
   list.particpants.forEach((i) {
-    if (phone.contains(i.phone))
-      names[i.phone] = i;
+    if (phone.contains(i.phone)) names[i.phone] = i;
   });
   return names;
 }

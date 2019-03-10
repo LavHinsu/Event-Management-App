@@ -590,7 +590,6 @@ class RoundsPageState extends State<RoundsPage>
                                       }),
                                 ],
                               ));
-
                   }
                 },
                 child: Padding(
@@ -628,7 +627,8 @@ class RoundsPageState extends State<RoundsPage>
                                 Text(
                                     names[event["rounds"]
                                     [int.parse(widget.roundno) - 1]
-                                    ["initial"][index]].name,
+                                    ["initial"][index]]
+                                        .name,
                                     textScaleFactor: 1.5),
                                 Text(
                                   event["rounds"][int.parse(widget.roundno) - 1]
@@ -662,7 +662,8 @@ class RoundsPageState extends State<RoundsPage>
                                 Text(
                                     names[event["rounds"]
                                     [int.parse(widget.roundno) - 1]
-                                    ["attendee"][index]].name,
+                                    ["attendee"][index]]
+                                        .name,
                                     textScaleFactor: 1.5),
                                 Text(
                                   event["rounds"][int.parse(widget.roundno) - 1]
@@ -677,9 +678,12 @@ class RoundsPageState extends State<RoundsPage>
                 );
               },
             ),
-            finalRound ? null : ListView.builder(
-              itemCount:
-              event["rounds"][int.parse(widget.roundno)]["initial"].length,
+            finalRound
+                ? null
+                : ListView.builder(
+              itemCount: event["rounds"][int.parse(widget.roundno)]
+              ["initial"]
+                  .length,
               itemBuilder: (context, index) {
                 return Padding(
                   padding: const EdgeInsets.all(8.0),
@@ -690,12 +694,14 @@ class RoundsPageState extends State<RoundsPage>
                           child: Padding(
                             padding: const EdgeInsets.all(15.0),
                             child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              mainAxisAlignment:
+                              MainAxisAlignment.spaceEvenly,
                               children: <Widget>[
                                 Text(
-                                    names[event["rounds"][int.parse(
-                                        widget.roundno)]
-                                    ["initial"][index]].name,
+                                    names[event["rounds"]
+                                    [int.parse(widget.roundno)]
+                                    ["initial"][index]]
+                                        .name,
                                     textScaleFactor: 1.5),
                                 Text(
                                   event["rounds"][int.parse(widget.roundno)]

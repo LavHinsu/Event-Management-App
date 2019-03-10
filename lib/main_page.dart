@@ -35,6 +35,7 @@ class MainPageState extends State<MainPage> {
   @override
   void initState() {
     super.initState();
+
     SharedPreferences.getInstance()
       ..then((prefs) {
         setState(() {
