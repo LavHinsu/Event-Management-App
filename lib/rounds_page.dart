@@ -1,20 +1,14 @@
-import 'dart:async';
 import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show rootBundle;
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'msg_page.dart';
 import 'user.dart';
 //import 'package:http/http.dart';
-
-Future<String> getFileData(String path) async {
-  return await rootBundle.loadString(path);
-}
 
 class RoundsPage extends StatefulWidget {
   final String eventid;
@@ -30,36 +24,45 @@ class RoundsPage extends StatefulWidget {
 
 class RoundsPageState extends State<RoundsPage>
     with SingleTickerProviderStateMixin {
+  Map<String, dynamic> names;
+  List<dynamic> filler = List();
   var event;
   int index;
   String token;
   bool nameBool = false;
   SharedPreferences prefs;
+  TextEditingController search;
   List<dynamic> events;
-  List<dynamic> names = List();
   List<dynamic> phone = List();
   List<bool> inputs = new List<bool>();
   List<bool> attend = List();
   List<bool> promote = List();
   TabController tabController;
   bool editmode = false;
+  final GlobalKey<ScaffoldState> key = GlobalKey<ScaffoldState>();
+  final String data = null;
+  final FirebaseAuth auth = FirebaseAuth.instance;
+  List<String> round = new List();
+  int count;
+  bool loaded = false;
+  bool tabbed = false;
+  List<dynamic> temp = List();
 
   @override
   void initState() {
     super.initState();
+    search = TextEditingController();
     SharedPreferences.getInstance()
       ..then((prefs) {
         setState(() {
           this.prefs = prefs;
           token = prefs.getString("token");
-//          print(token);
+          username = prefs.getString("username");
         });
       });
-//    print(widget.roundno);
     currentAction = attendance;
-
+    names = Map();
     tabController = TabController(vsync: this, length: 3);
-    //print(widget.eventid);
     manager = Firestore.instance.collection("managers").document(username);
     participant = Firestore.instance.collection("participant");
     fetchRounds();
@@ -81,14 +84,6 @@ class RoundsPageState extends State<RoundsPage>
       else if (currentAction == promotion) promote[index] = val;
     });
   }
-
-  final GlobalKey<ScaffoldState> key = GlobalKey<ScaffoldState>();
-  final String data = null;
-  final FirebaseAuth auth = FirebaseAuth.instance;
-  List<String> round = new List();
-  int count;
-  bool loaded = false;
-  bool tabbed = false;
 
   Widget build(BuildContext context) {
     return Scaffold(
@@ -260,23 +255,16 @@ class RoundsPageState extends State<RoundsPage>
       if (events[i]["id"] == widget.eventid) {
         index = i;
         event = events[i];
-
-        phone = event["rounds"][int.parse(widget.roundno) - 1]["initial"];
-//        print(phone[0]);
-        await Future.forEach(phone, (i) async {
-          participant.document(i).get().then((d) {
-            names.add(d["name"]);
-          });
-        }).whenComplete(() {
-          print(names);
-          setState(() {
-            loaded = true;
-            nameBool = true;
-          });
-        });
-
-        print(names);
-        //print("phone : "   + phone.toString());
+        if ((event["rounds"][int.parse(widget.roundno) - 1]["attendee"] as List)
+            .isNotEmpty) {
+          phone = event["rounds"][int.parse(widget.roundno) - 1]["attendee"];
+          currentAction = promotion;
+        } else
+          phone = event["rounds"][int.parse(widget.roundno) - 1]["initial"];
+        names = await fetchNames(phone);
+        filler = phone;
+        attend = List();
+        promote = List();
         for (int j = 0; j < phone.length; j++) {
           attend.add(false);
           promote.add(false);
@@ -284,12 +272,54 @@ class RoundsPageState extends State<RoundsPage>
         break;
       }
     }
+
     print(count);
     setState(() {
       if (int.parse(widget.roundno) < event["currentRound"]) {
         tabbed = true;
       }
+      loaded = true;
+      nameBool = true;
     });
+  }
+
+  void filterSearchResults(String query) {
+    List<String> x = List();
+    filler.forEach((i) => x.add(names[i]));
+
+    if (query.isNotEmpty) {
+      List<String> dummyListData = List<String>();
+      for (int i = 0; i < x.length; i++) {
+        if (x[i].contains(query)) {
+          dummyListData.add(filler[i]);
+        }
+      }
+      print(dummyListData);
+      setState(() {
+        filler = List();
+        filler.addAll(dummyListData);
+        attend = List();
+        promote = List();
+        for (int j = 0; j < filler.length; j++) {
+          attend.add(false);
+          promote.add(false);
+        }
+      });
+      return;
+    } else {
+      setState(() {
+        filler = List();
+        attend = List();
+        promote = List();
+        filler = phone;
+//        if(currentAction == attendance)
+
+        for (int j = 0; j < filler.length; j++) {
+          attend.add(false);
+          promote.add(false);
+        }
+      });
+    }
   }
 
   Widget _rounds() {
@@ -300,6 +330,23 @@ class RoundsPageState extends State<RoundsPage>
         if (nameBool) {
           return Column(
             children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: TextField(
+                  style: TextStyle(fontSize: 18.0),
+                  onChanged: (value) {
+                    filterSearchResults(value);
+                  },
+                  controller: search,
+                  decoration: InputDecoration(
+                      labelText: "Search",
+                      hintText: "Search",
+                      prefixIcon: Icon(Icons.search),
+                      border: OutlineInputBorder(
+                          borderRadius:
+                          BorderRadius.all(Radius.circular(20.0)))),
+                ),
+              ),
               Expanded(
                 child: ListView.builder(
                     itemCount: currentAction == attendance
@@ -318,7 +365,8 @@ class RoundsPageState extends State<RoundsPage>
                                 title: GestureDetector(
                                   onDoubleTap: () {
                                     TextEditingController name =
-                                    TextEditingController();
+                                    TextEditingController(
+                                        text: names[phone[index]]);
 
                                     showDialog(
                                         context: context,
@@ -334,8 +382,9 @@ class RoundsPageState extends State<RoundsPage>
                                                       left: 12.0,
                                                       right: 12.0),
                                                   child: TextField(
+
                                                     decoration: InputDecoration(
-                                                        labelText: "Name"),
+                                                      labelText: "Name",),
                                                     controller: name,
                                                     keyboardType:
                                                     TextInputType.text,
@@ -392,8 +441,8 @@ class RoundsPageState extends State<RoundsPage>
                                     crossAxisAlignment:
                                     CrossAxisAlignment.start,
                                     children: <Widget>[
-                                      Text("dfdsf"),
-                                      Text(phone[index])
+                                      Text(names[filler[index]]),
+                                      Text(filler[index])
                                     ],
                                   ),
                                 ),
@@ -513,13 +562,12 @@ class RoundsPageState extends State<RoundsPage>
                                             MaterialPageRoute(
                                                 builder: (context) =>
                                                     MsgPage(
-                                                      events: events,
-                                                      index: index,
-                                                      phone: phone,
-                                                      event: event,
-                                                      round: event[
-                                                      "currentRound"]
-                                                    )));
+                                                        events: events,
+                                                        index: index,
+                                                        phone: phone,
+                                                        event: event,
+                                                        round: event[
+                                                        "currentRound"])));
                                       }),
                                 ],
                               ));
@@ -554,7 +602,7 @@ class RoundsPageState extends State<RoundsPage>
           children: <Widget>[
             ListView.builder(
               itemCount: event["rounds"][int.parse(widget.roundno) - 1]
-                      ["initial"]
+              ["initial"]
                   .length,
               itemBuilder: (context, index) {
                 return Padding(
@@ -564,13 +612,21 @@ class RoundsPageState extends State<RoundsPage>
                       padding: EdgeInsets.all(8.0),
                       child: Center(
                           child: Padding(
-                        padding: const EdgeInsets.all(15.0),
-                        child: Text(
-                          event["rounds"][int.parse(widget.roundno) - 1]
-                              ["initial"][index],
-                          textScaleFactor: 1.5,
-                        ),
-                      )),
+                            padding: const EdgeInsets.all(15.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: <Widget>[
+                                Text(names[event["rounds"][int.parse(
+                                    widget.roundno) - 1]
+                                ["initial"][index]]),
+                                Text(
+                                  event["rounds"][int.parse(widget.roundno) - 1]
+                                  ["initial"][index],
+                                  textScaleFactor: 1.5,
+                                ),
+                              ],
+                            ),
+                          )),
                     ),
                   ),
                 );
@@ -578,7 +634,7 @@ class RoundsPageState extends State<RoundsPage>
             ),
             ListView.builder(
               itemCount: event["rounds"][int.parse(widget.roundno) - 1]
-                      ["attendee"]
+              ["attendee"]
                   .length,
               itemBuilder: (context, index) {
                 return Padding(
@@ -588,13 +644,21 @@ class RoundsPageState extends State<RoundsPage>
                       padding: EdgeInsets.all(8.0),
                       child: Center(
                           child: Padding(
-                        padding: const EdgeInsets.all(15.0),
-                        child: Text(
-                          event["rounds"][int.parse(widget.roundno) - 1]
-                              ["attendee"][index],
-                          textScaleFactor: 1.5,
-                        ),
-                      )),
+                            padding: const EdgeInsets.all(15.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: <Widget>[
+                                Text(names[event["rounds"][int.parse(
+                                    widget.roundno) - 1]
+                                ["attendee"][index]]),
+                                Text(
+                                  event["rounds"][int.parse(widget.roundno) - 1]
+                                  ["attendee"][index],
+                                  textScaleFactor: 1.5,
+                                ),
+                              ],
+                            ),
+                          )),
                     ),
                   ),
                 );
@@ -602,7 +666,7 @@ class RoundsPageState extends State<RoundsPage>
             ),
             ListView.builder(
               itemCount:
-                  event["rounds"][int.parse(widget.roundno)]["initial"].length,
+              event["rounds"][int.parse(widget.roundno)]["initial"].length,
               itemBuilder: (context, index) {
                 return Padding(
                   padding: const EdgeInsets.all(8.0),
@@ -611,13 +675,20 @@ class RoundsPageState extends State<RoundsPage>
                       padding: EdgeInsets.all(8.0),
                       child: Center(
                           child: Padding(
-                        padding: const EdgeInsets.all(15.0),
-                        child: Text(
-                          event["rounds"][int.parse(widget.roundno)]["initial"]
-                              [index],
-                          textScaleFactor: 1.5,
-                        ),
-                      )),
+                            padding: const EdgeInsets.all(15.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: <Widget>[
+                                Text(names[event["rounds"]
+                                [int.parse(widget.roundno)]["initial"][index]]),
+                                Text(
+                                  event["rounds"][int.parse(widget.roundno)]
+                                  ["initial"][index],
+                                  textScaleFactor: 1.5,
+                                ),
+                              ],
+                            ),
+                          )),
                     ),
                   ),
                 );

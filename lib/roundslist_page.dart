@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:event_app/rounds_page.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show rootBundle;
 
 import 'data_class.dart';
 import 'rounds_page.dart';
@@ -25,6 +26,9 @@ class RoundListState extends State<RoundList> {
   bool loaded = false;
   int noofrounds;
 
+  Future<String> getFileData(String path) async {
+    return await rootBundle.loadString(path);
+  }
   fetchnoofrounds() async {
     String json = await getFileData("assets/events.json");
     var events = jsonDecode(json);

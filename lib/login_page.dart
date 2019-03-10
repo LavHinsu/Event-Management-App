@@ -51,15 +51,6 @@ class LoginPageState extends State<LoginPage> {
     var response = await http.post(url,
         body: json.encode(temp), headers: {'content-type': 'application/json'});
     var body = json.decode(response.body);
-//     var client = HttpClient();
-//     var request = await client.postUrl(Uri.parse(url));
-//    request.headers.set('content-type', 'application/json');
-//    request.add(utf8.encode(json.encode(temp)));
-//    var response = await request.close();
-//    String text = await response.transform(utf8.decoder).join();
-//    print(text);
-//     var body = json.decode(response);
-//     print(body);
     if (body.containsKey("token")) {
       print(body);
       prefs.setString("token", body["token"]);
