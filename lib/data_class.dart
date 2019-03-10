@@ -89,17 +89,17 @@ class Participant {
       {this.phone, this.events, this.id, this.name, this.year, this.branch});
 
   factory Participant.fromJson(Map<String, dynamic> json) {
-    print(json["events"].runtimeType);
-//    var data = json["events"] as List ;
-//    List<ParticipantEvent> events =
-//    data.map((i) => ParticipantEvent.fromJson(i)).toList();
+//    print(json["events"]);
+    var data = json["events"] as List;
+    List<ParticipantEvent> events =
+    data.map((i) => ParticipantEvent.fromJson(i)).toList();
     return Participant(
         id: json["_id"],
         name: json["name"],
         branch: json["branch"],
         year: json["branch"],
         phone: json["phone"],
-//        events: events
+        events: events
     );
   }
 

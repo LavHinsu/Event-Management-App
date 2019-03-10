@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/services.dart' show rootBundle;
 
 import 'data_class.dart';
+
 String username, password;
 FirebaseUser user;
 
@@ -11,15 +12,27 @@ Future<String> getFileData(String path) async {
   return await rootBundle.loadString(path);
 }
 
-Future<Map<String, String>> fetchNames(List<dynamic> phone) async {
+//
+//Future<Map<String, String>> fetchNames(List<dynamic> phone) async {
+//  String text = await getFileData("assets/participant.json");
+//  Map<String, dynamic> events = jsonDecode(text);
+//  Map<String, String> names = Map();
+//  events.forEach((key, value) {
+//    names.putIfAbsent(key, () =>
+//    Participant
+//        .fromJson(value)
+//        .name);
+//  });
+//  return names;
+//}
+Future<Map<String, Participant>> fetchNames(List<dynamic> phone) async {
   String text = await getFileData("assets/participant.json");
-  Map<String, dynamic> events = jsonDecode(text);
-  Map<String, String> names = Map();
-  events.forEach((key, value) {
-    names.putIfAbsent(key, () =>
-    Participant
-        .fromJson(value)
-        .name);
+  var events = jsonDecode(text);
+  Map<String, Participant> names = Map();
+  ParticipantList list = ParticipantList.fromJson(events);
+  list.particpants.forEach((i) {
+    if (phone.contains(i.phone))
+      names[i.phone] = i;
   });
   return names;
 }

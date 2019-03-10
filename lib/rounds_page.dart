@@ -7,6 +7,7 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'data_class.dart';
 import 'msg_page.dart';
 import 'user.dart';
 //import 'package:http/http.dart';
@@ -29,7 +30,7 @@ class RoundsPage extends StatefulWidget {
 
 class RoundsPageState extends State<RoundsPage>
     with SingleTickerProviderStateMixin {
-  Map<String, dynamic> names;
+  Map<String, Participant> names;
   List<dynamic> filler = List();
   var event;
   int index;
@@ -298,7 +299,7 @@ class RoundsPageState extends State<RoundsPage>
 
   filterSearchResults() {
     List<String> x = List();
-    filler.forEach((i) => x.add(names[i]));
+    filler.forEach((i) => x.add(names[i].name));
     String query = search.text;
     if (query.isNotEmpty) {
       List<String> dummyListData = List<String>();
@@ -362,7 +363,7 @@ class RoundsPageState extends State<RoundsPage>
                                   onDoubleTap: () {
                                     TextEditingController name =
                                     TextEditingController(
-                                        text: names[phone[index]]);
+                                        text: names[phone[index]].name);
 
                                     showDialog(
                                         context: context,
@@ -450,7 +451,7 @@ class RoundsPageState extends State<RoundsPage>
                                     CrossAxisAlignment.start,
                                     children: <Widget>[
                                       Text(names[filler[index]] != null
-                                          ? names[filler[index]]
+                                          ? names[filler[index]].name
                                           : "Unknown"),
                                       Text(filler[index])
                                     ],
@@ -627,7 +628,7 @@ class RoundsPageState extends State<RoundsPage>
                                 Text(
                                     names[event["rounds"]
                                     [int.parse(widget.roundno) - 1]
-                                    ["initial"][index]],
+                                    ["initial"][index]].name,
                                     textScaleFactor: 1.5),
                                 Text(
                                   event["rounds"][int.parse(widget.roundno) - 1]
@@ -661,7 +662,7 @@ class RoundsPageState extends State<RoundsPage>
                                 Text(
                                     names[event["rounds"]
                                     [int.parse(widget.roundno) - 1]
-                                    ["attendee"][index]],
+                                    ["attendee"][index]].name,
                                     textScaleFactor: 1.5),
                                 Text(
                                   event["rounds"][int.parse(widget.roundno) - 1]
@@ -694,7 +695,7 @@ class RoundsPageState extends State<RoundsPage>
                                 Text(
                                     names[event["rounds"][int.parse(
                                         widget.roundno)]
-                                    ["initial"][index]],
+                                    ["initial"][index]].name,
                                     textScaleFactor: 1.5),
                                 Text(
                                   event["rounds"][int.parse(widget.roundno)]
