@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'user.dart';
+
 class MsgPage extends StatefulWidget {
   final events;
   final index;
@@ -28,7 +29,7 @@ class _MsgPageState extends State<MsgPage> {
   String token;
   bool done = false;
   TextEditingController venue = TextEditingController();
-
+  final GlobalKey<ScaffoldState> key = GlobalKey<ScaffoldState>();
   @override
   void initState() {
     super.initState();
@@ -48,9 +49,9 @@ class _MsgPageState extends State<MsgPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        key: key,
         appBar: AppBar(
           title: Text("Promote Participants"),
-          actions: <Widget>[GestureDetector(onTap: null, child: Text("Done"))],
         ),
         body: Container(
             child: Column(
@@ -124,12 +125,10 @@ class _MsgPageState extends State<MsgPage> {
                               done = true;
 
                               txt =
-                                  "Dear Participant, Round ${widget
-                                      .round + 1 } of ${widget
-                                      .event["name"]} is on ${dt
+                                  "Dear Participant, Round ${widget.round +
+                                      1} of ${widget.event["name"]} is on ${dt
                                       .day}/${dt.month}/${dt.year} ${td
-                                      .hour}:${td
-                                      .minute} at " +
+                                      .hour}:${td.minute} at " +
                                       venue.text +
                                       ". Kindly be present at the venue on time.";
                             } else
@@ -157,16 +156,26 @@ class _MsgPageState extends State<MsgPage> {
                                 });
                             var body = json.decode(response.body);
                             print(body);
-//                        if (body.containsKey("success")) {
-                            widget.event["rounds"][widget.round]
-                            ["initial"] = widget.phone;
-                            widget.event["currentRound"] =
-                                widget.round + 1;
-                            widget.events[widget.index] = widget.event;
-                            doc.updateData({"events": widget.events});
-                            Navigator.pop(context);
+                            if (body.containsKey("success")) {
+                              key.currentState.showSnackBar(SnackBar(
+                                  content: Text("Success : Message sent")));
+                              widget.event["rounds"][widget.round]["initial"] =
+                                  widget.phone;
+                              widget.event["currentRound"] = widget.round + 1;
+                              widget.events[widget.index] = widget.event;
+                              doc.updateData({"events": widget.events});
+                              Navigator.pop(context);
+                            }
+                            else {
+                              key.currentState.showSnackBar(SnackBar(
+                                  content: Text(
+                                      "Error : Failure in sending messages")));
+                            }
+                          } else {
+                            key.currentState.showSnackBar(SnackBar(
+                                content: Text(
+                                    "Warning : Please enter all the fields ")));
                           }
-//                      }
                         },
                       )
                     ],
