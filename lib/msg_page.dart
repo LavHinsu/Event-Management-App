@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:date_format/date_format.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -30,6 +31,7 @@ class _MsgPageState extends State<MsgPage> {
   bool done = false;
   TextEditingController venue = TextEditingController();
   final GlobalKey<ScaffoldState> key = GlobalKey<ScaffoldState>();
+
   @override
   void initState() {
     super.initState();
@@ -67,7 +69,7 @@ class _MsgPageState extends State<MsgPage> {
                         onPressed: () async {
                           final d = await showDatePicker(
                               initialDate: DateTime.now(),
-                              firstDate: DateTime(2019, 3, 1),
+                              firstDate: DateTime(2019, 3, 11),
                               lastDate: DateTime(2019, 3, 16),
                               context: context);
                           if (d != null)
@@ -123,12 +125,31 @@ class _MsgPageState extends State<MsgPage> {
                             if (td != null && dt != null &&
                                 venue.text.isNotEmpty) {
                               done = true;
-
+                              var temp = DateTime(
+                                  dt.year, dt.month, dt.day, td.hour,
+                                  td.minute);
+                              String min = td.minute
+                                  .toString()
+                                  .length == 1
+                                  ? "0${td.minute}"
+                                  : td.minute.toString();
                               txt =
                                   "Dear Participant, Round ${widget.round +
-                                      1} of ${widget.event["name"]} is on ${dt
-                                      .day}/${dt.month}/${dt.year} ${td
-                                      .hour}:${td.minute} at " +
+                                      1} of ${widget.event["name"]} is on " +
+                                      formatDate(temp, [
+                                        d,
+                                        '/',
+                                        m,
+                                        '/',
+                                        yyyy,
+                                        ' ',
+                                        HH,
+                                        ':',
+                                        nn,
+                                        ' ',
+                                        am
+                                      ]) +
+                                      " at " +
                                       venue.text +
                                       ". Kindly be present at the venue on time.";
                             } else
@@ -165,11 +186,10 @@ class _MsgPageState extends State<MsgPage> {
                               widget.events[widget.index] = widget.event;
                               doc.updateData({"events": widget.events});
                               Navigator.pop(context);
-                            }
-                            else {
+                            } else {
                               key.currentState.showSnackBar(SnackBar(
-                                  content: Text(
-                                      "Error : Failure in sending messages")));
+                                  content:
+                                  Text("Error : Failure in sending messages")));
                             }
                           } else {
                             key.currentState.showSnackBar(SnackBar(
@@ -181,7 +201,7 @@ class _MsgPageState extends State<MsgPage> {
                     ],
                   ),
                 ),
-                Text(txt)
+                Center(child: Text(txt, textAlign: TextAlign.center,))
               ],
             )));
   }

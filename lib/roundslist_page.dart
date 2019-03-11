@@ -29,6 +29,7 @@ class RoundListState extends State<RoundList> {
   Future<String> getFileData(String path) async {
     return await rootBundle.loadString(path);
   }
+
   fetchnoofrounds() async {
     String json = await getFileData("assets/events.json");
     var events = jsonDecode(json);

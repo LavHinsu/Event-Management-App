@@ -66,7 +66,7 @@ class RoundsPageState extends State<RoundsPage>
     super.initState();
     getApplicationDocumentsDirectory().then((d) {
       dir = d;
-      jsonFile = new File(dir.path + "/assets/participant.json");
+      jsonFile = new File(dir.path + "/participant.json");
     });
 
     select = Map();
@@ -103,10 +103,17 @@ class RoundsPageState extends State<RoundsPage>
     });
   }
 
+  Future<List> fetchFile() async {
+    String text = await jsonFile.readAsStringSync();
+    List<dynamic> temp = json.decode(text);
+    return temp;
+  }
+
   void writeToFile(List<dynamic> person) async {
     print("Writing to file!");
     jsonFile.writeAsStringSync(json.encode(person));
     names = await fetchNames(perma);
+    print(names);
   }
 
   Widget build(BuildContext context) {
@@ -187,9 +194,7 @@ class RoundsPageState extends State<RoundsPage>
                             top: 12.0, left: 12.0, right: 12.0),
                         child: FlatButton(
                           onPressed: () async {
-                            setState(() {
-
-                            });
+                            setState(() {});
                             if (year.text.isNotEmpty &&
                                 name.text.isNotEmpty &&
                                 branch.text.isNotEmpty &&
@@ -218,16 +223,15 @@ class RoundsPageState extends State<RoundsPage>
                               var zed = json.decode(response.body);
                               print(json.decode(response.body));
                               if (zed.containsKey("success")) {
-                                String text = await getFileData(
-                                    "assets/participant.json");
-
+                                List<dynamic> zzz = List();
+                                var t = await fetchFile();
                                 setState(() {
                                   List<dynamic> temp = List();
                                   phone.forEach((i) => temp.add(i));
                                   temp.add(phoneT.text);
+                                  perma.add(phoneT.text);
                                   phone = filler = temp;
-                                  List<dynamic> zzz = List();
-                                  zzz.addAll(jsonDecode(text));
+                                  zzz.addAll(t);
                                   zzz.add(body);
                                   writeToFile(zzz);
                                   event["rounds"]
@@ -248,7 +252,6 @@ class RoundsPageState extends State<RoundsPage>
                             }
                           },
                           child: Text("Confirm"),
-
                         ),
                       ),
                     ],
@@ -422,13 +425,18 @@ class RoundsPageState extends State<RoundsPage>
                                                       right: 12.0),
                                                   child: FlatButton(
                                                     onPressed: () async {
-                                                      print(phone[index]);
+                                                      print(filler[index]);
+                                                      var l =
+                                                      names[filler[index]];
+                                                      var p = l.toJson();
+                                                      p["name"] = name.text;
+                                                      p["round"] = int.parse(
+                                                          widget.roundno);
+                                                      print(p);
                                                       var response = await http
-                                                          .post(
-                                                          "https://udaan19-messenger-api.herokuapp.com/get",
-                                                          body: json.encode({
-                                                            "phone": phone[index]
-                                                          }),
+                                                          .put(
+                                                          "https://udaan19-messenger-api.herokuapp.com/update",
+                                                          body: json.encode(p),
                                                           headers: {
                                                             'content-type':
                                                             'application/json',
@@ -438,27 +446,35 @@ class RoundsPageState extends State<RoundsPage>
                                                       var body = json.decode(
                                                           response.body);
                                                       print(body);
-                                                      body["name"] = name.text;
-                                                      response = await http.put(
-                                                          "https://udaan19-messenger-api.herokuapp.com/update",
-                                                          body: json.encode(
-                                                              body),
-                                                          headers: {
-                                                            'content-type':
-                                                            'application/json',
-                                                            "Authorization":
-                                                            token
-                                                          });
-                                                      body = json.decode(
-                                                          response.body);
-                                                      print(body);
                                                       if (body["message"] ==
                                                           "Participant updated") {
-                                                        key.currentState
-                                                            .showSnackBar(
-                                                            SnackBar(
-                                                                content: Text(
-                                                                    "Success : Participant updated")));
+                                                        List<dynamic> x =
+                                                        await fetchFile();
+                                                        int dump;
+                                                        for (int i = 0;
+                                                        i < x.length;
+                                                        i++) {
+                                                          if (x[i]["phone"] ==
+                                                              filler[index]) {
+                                                            dump = i;
+                                                            break;
+                                                          }
+                                                        }
+                                                        if (dump != null) {
+                                                          x[dump] = p;
+                                                          writeToFile(x);
+                                                          names =
+                                                          await fetchNames(
+                                                              perma);
+                                                          key.currentState
+                                                              .showSnackBar(
+                                                              SnackBar(
+                                                                  content: Text(
+                                                                      "Success : Participant updated")));
+                                                          setState(() {});
+                                                          Navigator.pop(
+                                                              context);
+                                                        }
                                                       } else {
                                                         key.currentState
                                                             .showSnackBar(
@@ -557,10 +573,14 @@ class RoundsPageState extends State<RoundsPage>
                                         setState(() {
                                           if (int.parse(widget.roundno) ==
                                               event["totalRounds"]) {
-                                            currentAction = attendance;
                                             finalRound = true;
-                                          }
-                                          else {
+                                            event["currentRound"] =
+                                                int.parse(widget.roundno) + 1;
+                                            events[index] = event;
+                                            manager
+                                                .updateData({"events": events});
+                                            Navigator.pop(context);
+                                          } else {
                                             currentAction = promotion;
                                           }
                                         });
@@ -637,6 +657,7 @@ class RoundsPageState extends State<RoundsPage>
         setState(() {
           tabbed = true;
         });
+        if (event["totalRounds"] < event["currentRound"]) finalRound = true;
         return TabBarView(
           controller: tabController,
           children: <Widget>[
@@ -710,11 +731,10 @@ class RoundsPageState extends State<RoundsPage>
                 );
               },
             ),
-            finalRound
-                ? null
-                : ListView.builder(
-              itemCount: event["rounds"][int.parse(widget.roundno)]
-              ["initial"]
+            ListView.builder(
+              itemCount: finalRound
+                  ? 1
+                  : event["rounds"][int.parse(widget.roundno)]["initial"]
                   .length,
               itemBuilder: (context, index) {
                 return Padding(
@@ -730,13 +750,18 @@ class RoundsPageState extends State<RoundsPage>
                               MainAxisAlignment.spaceEvenly,
                               children: <Widget>[
                                 Text(
-                                    names[event["rounds"]
-                                    [int.parse(widget.roundno)]
+                                    finalRound
+                                        ? "None"
+                                        : names[event["rounds"][
+                                    int.parse(widget.roundno)]
                                     ["initial"][index]]
                                         .name,
                                     textScaleFactor: 1.5),
                                 Text(
-                                  event["rounds"][int.parse(widget.roundno)]
+                                  finalRound
+                                      ? "None"
+                                      : event["rounds"]
+                                  [int.parse(widget.roundno)]
                                   ["initial"][index],
                                   textScaleFactor: 1.5,
                                 ),
