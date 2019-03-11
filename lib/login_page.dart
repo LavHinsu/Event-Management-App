@@ -119,7 +119,7 @@ class LoginPageState extends State<LoginPage> {
           phoneNumber: "+91" + this.phoneNo,
           forceResendingToken: 1,
           codeSent: smsCodeSent,
-          timeout: const Duration(seconds: 20),
+          timeout: const Duration(seconds: 60),
           verificationCompleted: verifiedSuccess,
           verificationFailed: veriFailed);
     } catch (e) {

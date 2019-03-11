@@ -1,18 +1,21 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/services.dart' show rootBundle;
+import 'package:path_provider/path_provider.dart';
 
 import 'data_class.dart';
 
 String username,
+    filename = "participant.json",
     password,
     app_id = "f9af5e48-fbb2-43f8-882b-b82a6bfa8d62";
 FirebaseUser user;
+
 Future<String> getFileData(String path) async {
   return await rootBundle.loadString(path);
 }
-
 
 //
 //Future<Map<String, String>> fetchNames(List<dynamic> phone) async {
@@ -28,9 +31,13 @@ Future<String> getFileData(String path) async {
 //  return names;
 //}
 Future<Map<String, Participant>> fetchNames(List<dynamic> phone) async {
-  String text = await getFileData("assets/participant.json");
+  Directory dir = await getApplicationDocumentsDirectory();
+  File jsonFile = new File(dir.path + "/" + "participant.json");
+  String text = jsonFile.readAsStringSync();
+
   var events = jsonDecode(text);
   Map<String, Participant> names = Map();
+
   ParticipantList list = ParticipantList.fromJson(events);
   list.particpants.forEach((i) {
     if (phone.contains(i.phone)) names[i.phone] = i;

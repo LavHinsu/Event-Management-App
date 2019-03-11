@@ -73,6 +73,8 @@ class ParticipantList {
 
   List<dynamic> toJson() {
     List<dynamic> temp = List();
+    particpants.forEach((i) => temp.add(i.toJson()));
+    return temp;
   }
   factory ParticipantList.fromJson(List<dynamic> x) =>
       ParticipantList(

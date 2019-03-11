@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
+import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:splashscreen/splashscreen.dart';
 
@@ -34,7 +35,7 @@ class _MyAppState extends State<MyApp> {
   bool loggedin = false;
   File jsonFile;
   Directory dir;
-  String fileName = "myJSONFile.json";
+  String fileName = "participant.json";
   bool fileExists = false;
   List<dynamic> fileContent;
 
@@ -45,25 +46,20 @@ class _MyAppState extends State<MyApp> {
   }
 
   void createFile() async {
-    print("Creating file!");
     File file = new File(dir.path + "/" + "participant.json");
     file.createSync();
     fileExists = true;
     String text = await getFileData("assets/participant.json");
     var events = jsonDecode(text);
     ParticipantList list = ParticipantList.fromJson(events);
-    file.writeAsStringSync(json.encode(list.toString()));
+    file.writeAsStringSync(json.encode(list.toJson()));
   }
 
-  void writeToFile(String key, String value) {
+  void writeToFile(List<dynamic> person) {
     print("Writing to file!");
-    Map<String, String> content = {key: value};
     if (fileExists) {
       print("File exists");
-      Map<String, String> jsonFileContent =
-      json.decode(jsonFile.readAsStringSync());
-      jsonFileContent.addAll(content);
-      jsonFile.writeAsStringSync(json.encode(jsonFileContent));
+      jsonFile.writeAsStringSync(json.encode(person));
     } else {
       print("File does not exist!");
       createFile();
@@ -74,6 +70,12 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
+    getApplicationDocumentsDirectory().then((Directory directory) {
+      dir = directory;
+      jsonFile = new File(dir.path + "/" + fileName);
+      fileExists = jsonFile.existsSync();
+      if (!fileExists) createFile();
+    });
 
 //    _firebaseMessaging.getToken().then((token)=> print("token " + token));
     SharedPreferences.getInstance()
