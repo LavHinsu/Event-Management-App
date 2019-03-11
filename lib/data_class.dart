@@ -71,6 +71,9 @@ class ParticipantList {
 
   ParticipantList({this.particpants});
 
+  List<dynamic> toJson() {
+    List<dynamic> temp = List();
+  }
   factory ParticipantList.fromJson(List<dynamic> x) =>
       ParticipantList(
           particpants: x.map((i) => Participant.fromJson(i)).toList());
@@ -84,6 +87,7 @@ class Participant {
   final String branch;
   final String phone;
   final List<ParticipantEvent> events;
+
 
   Participant(
       {this.phone, this.events, this.id, this.name, this.year, this.branch});

@@ -230,14 +230,6 @@ class LoginPageState extends State<LoginPage> {
                           ),
                         ],
                       )),
-                  Align(
-                    alignment: AlignmentDirectional.center,
-                    child: FlatButton(
-                      color: Colors.transparent,
-                      child: Text("Forgot Password?"),
-                      onPressed: () {},
-                    ),
-                  )
                 ],
               ))
             ],

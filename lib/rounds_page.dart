@@ -1,10 +1,12 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:http/http.dart' as http;
+import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'data_class.dart';
@@ -32,8 +34,11 @@ class RoundsPageState extends State<RoundsPage>
     with SingleTickerProviderStateMixin {
   Map<String, Participant> names;
   List<dynamic> filler = List();
+  List<dynamic> perma = List();
   var event;
   int index;
+  File jsonFile;
+  Directory dir;
   Map<String, bool> select;
   String token;
   bool nameBool = false;
@@ -59,6 +64,11 @@ class RoundsPageState extends State<RoundsPage>
   @override
   void initState() {
     super.initState();
+    getApplicationDocumentsDirectory().then((d) {
+      dir = d;
+      jsonFile = new File(dir.path + "/assets/participant.json");
+    });
+
     select = Map();
     search = TextEditingController();
     search.addListener(filterSearchResults);
@@ -93,6 +103,12 @@ class RoundsPageState extends State<RoundsPage>
     });
   }
 
+  void writeToFile(List<dynamic> person) async {
+    print("Writing to file!");
+    jsonFile.writeAsStringSync(json.encode(person));
+    names = await fetchNames(perma);
+  }
+
   Widget build(BuildContext context) {
     return Scaffold(
       key: key,
@@ -119,6 +135,7 @@ class RoundsPageState extends State<RoundsPage>
             TextEditingController phoneT = TextEditingController();
             TextEditingController branch = TextEditingController();
             TextEditingController year = TextEditingController();
+
             showDialog(
               context: context,
               builder: (context) =>
@@ -170,6 +187,9 @@ class RoundsPageState extends State<RoundsPage>
                             top: 12.0, left: 12.0, right: 12.0),
                         child: FlatButton(
                           onPressed: () async {
+                            setState(() {
+
+                            });
                             if (year.text.isNotEmpty &&
                                 name.text.isNotEmpty &&
                                 branch.text.isNotEmpty &&
@@ -179,11 +199,13 @@ class RoundsPageState extends State<RoundsPage>
                                 "phone": phoneT.text,
                                 "branch": branch.text,
                                 "year": year.text,
-                                "events": {
-                                  "rec_no": "123456",
-                                  "eventName": event["name"],
-                                  "code": "12345678"
-                                }
+                                "events": [
+                                  {
+                                    "rec_no": "123456",
+                                    "eventName": event["name"],
+                                    "code": "12345678"
+                                  }
+                                ]
                               };
                               String json1 = json.encode(body);
                               var response = await http.post(
@@ -195,34 +217,38 @@ class RoundsPageState extends State<RoundsPage>
                                   });
                               var zed = json.decode(response.body);
                               print(json.decode(response.body));
-                              if (zed.containsKey("success"))
+                              if (zed.containsKey("success")) {
+                                String text = await getFileData(
+                                    "assets/participant.json");
+
+                                setState(() {
+                                  List<dynamic> temp = List();
+                                  phone.forEach((i) => temp.add(i));
+                                  temp.add(phoneT.text);
+                                  phone = filler = temp;
+                                  List<dynamic> zzz = List();
+                                  zzz.addAll(jsonDecode(text));
+                                  zzz.add(body);
+                                  writeToFile(zzz);
+                                  event["rounds"]
+                                  [int.parse(widget.roundno) - 1]
+                                  ["initial"] = temp;
+                                  events[index] = event;
+                                  manager.updateData({"events": events});
+                                });
                                 key.currentState.showSnackBar(SnackBar(
                                     content: Text(
                                         "Success : Participant Successfully registered")));
-                              String text = await getFileData(
-                                  "assets/participant.json");
-                              Map<String, dynamic> zzz = jsonDecode(text);
-                              zzz[phoneT.text] = body;
-
-                              setState(() {
-                                List<dynamic> temp = List();
-                                phone.forEach((i) => temp.add(i));
-                                temp.add(phoneT.text);
-                                phone = temp;
-                                event["rounds"]
-                                [int.parse(widget.roundno) - 1]
-                                ["initial"] = temp;
-                                events[index] = event;
-                                manager.updateData({"events": events});
-                              });
-                              Navigator.pop(context);
+                                Navigator.pop(context);
+                              }
                             } else {
                               key.currentState.showSnackBar(SnackBar(
                                   content: Text(
-                                      "Error : Participant not registered registered")));
+                                      "Error : Please enter all the fields")));
                             }
                           },
                           child: Text("Confirm"),
+
                         ),
                       ),
                     ],
@@ -274,7 +300,8 @@ class RoundsPageState extends State<RoundsPage>
           currentAction = promotion;
         } else
           phone = event["rounds"][int.parse(widget.roundno) - 1]["initial"];
-        names = await fetchNames(phone);
+        perma = event["rounds"][int.parse(widget.roundno) - 1]["initial"];
+        names = await fetchNames(perma);
         filler = phone;
         phone.forEach((i) => select[i] = false);
 //        attend = List();
@@ -363,7 +390,7 @@ class RoundsPageState extends State<RoundsPage>
                                   onDoubleTap: () {
                                     TextEditingController name =
                                     TextEditingController(
-                                        text: names[phone[index]].name);
+                                        text: names[filler[index]].name);
 
                                     showDialog(
                                         context: context,
@@ -527,12 +554,17 @@ class RoundsPageState extends State<RoundsPage>
                                       if (body["message"] ==
                                           "attendance added") {
                                         manager.updateData({"events": events});
-                                        if (int.parse(widget.roundno) ==
-                                            event["totalRounds"]) {
-                                          setState(() {
+                                        setState(() {
+                                          if (int.parse(widget.roundno) ==
+                                              event["totalRounds"]) {
+                                            currentAction = attendance;
                                             finalRound = true;
-                                          });
-                                        }
+                                          }
+                                          else {
+                                            currentAction = promotion;
+                                          }
+                                        });
+
                                         Navigator.pop(context);
                                       }
                                     }),

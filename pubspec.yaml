@@ -29,6 +29,8 @@ dependencies:
   shared_preferences: ^0.5.0
   cloud_firestore: ^0.9.5+2
   firebase_messaging: ^4.0.0+1
+  path_provider: ^0.5.0+1
+  progress_button: ^0.0.1
 dev_dependencies:
   build_runner: ^1.0.0
   flutter_test:
