@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
-import 'package:path_provider/path_provider.dart';
+import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:splashscreen/splashscreen.dart';
 
@@ -49,6 +49,8 @@ class _MyAppState extends State<MyApp> {
     File file = new File(dir.path + "/" + "participant.json");
     file.createSync();
     fileExists = true;
+    var response = http.post(
+        "https://udaan19-messenger-api.herokuapp.com/getAll");
     String text = await getFileData("assets/participant.json");
     var events = jsonDecode(text);
     ParticipantList list = ParticipantList.fromJson(events);
@@ -70,12 +72,12 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-    getApplicationDocumentsDirectory().then((Directory directory) {
-      dir = directory;
-      jsonFile = new File(dir.path + "/" + fileName);
-      fileExists = jsonFile.existsSync();
-      if (!fileExists) createFile();
-    });
+//    getApplicationDocumentsDirectory().then((Directory directory) {
+//      dir = directory;
+//      jsonFile = new File(dir.path + "/" + fileName);
+//      fileExists = jsonFile.existsSync();
+//      if (!fileExists) createFile();
+//    });
 
 //    _firebaseMessaging.getToken().then((token)=> print("token " + token));
     SharedPreferences.getInstance()

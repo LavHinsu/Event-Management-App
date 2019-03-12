@@ -1,10 +1,13 @@
 import 'dart:async' show Future;
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
+import 'package:http/http.dart' as http;
+import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'data_class.dart';
@@ -28,34 +31,78 @@ class MainPageState extends State<MainPage> {
   List<String> ids = new List();
   List<String> names = new List();
   bool loaded = false;
+  bool loggedin = false;
+  File jsonFile;
+  Directory dir;
+  String fileName = "participant.json";
+  bool fileExists = false;
+  List<dynamic> fileContent;
 
   final GlobalKey<ScaffoldState> key = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
     super.initState();
+    loaded = false;
+    getApplicationDocumentsDirectory().then((d) {
+      dir = d;
+      jsonFile = new File(dir.path + "/" + fileName);
+      fileExists = jsonFile.existsSync();
+      if (!fileExists)
+        createFile();
+      else {
+        SharedPreferences.getInstance()
+          ..then((prefs) {
+            setState(() {
+              this.token = prefs.getString("token");
+              print("token : " + token);
+              //addParticiapants();
+              this.prefs = prefs;
+              username = prefs.getString('username');
+            });
+          });
+        Firestore.instance
+            .collection("managers")
+            .document(username)
+            .snapshots()
+            .listen((data) {
+          if (data.exists)
+            setState(() {
+              loaded = true;
+            });
+          else
+            load();
+        });
+      }
+    });
+  }
 
-    SharedPreferences.getInstance()
-      ..then((prefs) {
-        setState(() {
-          this.token = prefs.getString("token");
-          print("token : " + token);
-          //addParticiapants();
-          this.prefs = prefs;
-          username = prefs.getString('username');
-        });
-      });
-    Firestore.instance
-        .collection("managers")
-        .document(username)
-        .snapshots()
-        .listen((data) {
-      if (data.exists)
-        setState(() {
-          loaded = true;
-        });
-      else
-        load();
+//  void writeToFile(List<dynamic> person) {
+//    print("Writing to file!");
+//    if (fileExists) {
+//      print("File exists");
+//      jsonFile.writeAsStringSync(json.encode(person));
+//    } else {
+//      print("File does not exist!");
+//      createFile();
+//    }
+//    print(fileContent);
+//  }
+
+  void createFile() async {
+    File file = new File(dir.path + "/" + "participant.json");
+    file.createSync();
+    fileExists = true;
+    var response = await http.post(
+        "https://udaan19-messenger-api.herokuapp.com/getAll",
+        headers: {"Authorization": token});
+
+    var events = jsonDecode(response.body);
+    ParticipantList list = ParticipantList.fromJson(events);
+    file.writeAsStringSync(json.encode(list.toJson()));
+    setState(() {
+      loaded = true;
+      load();
     });
   }
 
@@ -97,101 +144,6 @@ class MainPageState extends State<MainPage> {
       ),
     );
   }
-
-//  void addParticiapants() async {
-//    var response = await http.post(
-//        "https://udaan19-messenger-api.herokuapp.com/getall",
-//        body: json.encode({
-//          'contacts': [
-//            "9428894767",
-//            "7405674894",
-//            "9099539644",
-//            "9726815593",
-//            "8347765018",
-//            "7046750633",
-//            "7283944774",
-//            "9055176442",
-//            "9033722943",
-//            "8160555677",
-//            "8733834280",
-//            "8238144991",
-//            "8511314418",
-//            "9558746785",
-//            "9409216691",
-//            "6354489678",
-//            "9726919739",
-//            "8160607663",
-//            "6355278118",
-//            "7046726821",
-//            "9586275119",
-//            "9687405887",
-//            "8960509806",
-//            "8141560189",
-//            "7990635057",
-//            "7600787017",
-//            "8238830004",
-//            "9512992683",
-//            "7487916278",
-//            "9913671557",
-//            "8469822358",
-//            "9428388155",
-//            "9427563545",
-//            "7265021583",
-//            "9033227174",
-//            "9067924224",
-//            "9979468172",
-//            "6354623438",
-//            "9687914078",
-//            "8401422420",
-//            "9265405975",
-//            "8460584053",
-//            "9427661995",
-//            "9712797254",
-//            "6359466428",
-//            "9998939450",
-//            "8140916146",
-//            "8160084764",
-//            "9879784707",
-//            "8200832625",
-//            "7889866832",
-//            "9265100295",
-//            "8490868721",
-//            "9512302663",
-//            "9429571813",
-//            "8238886862",
-//            "7405829723",
-//            "9737664396",
-//            "7046103040",
-//            "7777986013",
-//            "7087470898",
-//            "7575031470",
-//            "9904623877",
-//            "8160899636",
-//            "9054153750",
-//            "9727339254",
-//            "9682615933",
-//            "9879218339",
-//            "9574538378",
-//            "9925722451",
-//            "7889370157",
-//            "7778032377",
-//            "7698876286"
-//          ]
-//        }),
-//        headers: {'content-type': 'application/json', "Authorization": token});
-//
-//    var body = json.decode(response.body)["participants"];
-//
-//    print(body);
-//    if (body != null) {
-//      ParticipantList list = ParticipantList.fromJson(body);
-//      list.particpants.forEach((i) =>
-//          Firestore.instance
-//              .collection("participant")
-//              .document(i.phone)
-//              .setData(i.toJson()));
-//    }
-//  }
 
   void load() async {
     String json = await getFileData("assets/events.json");
